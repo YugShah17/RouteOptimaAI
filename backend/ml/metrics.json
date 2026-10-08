@@ -1,0 +1,26 @@
+{
+  "version_name": "RF-Complexity-v1.0",
+  "algorithm_name": "Random Forest Classifier",
+  "accuracy": 0.85,
+  "precision": 0.8083,
+  "recall": 0.85,
+  "f1_score": 0.8254,
+  "training_samples": 400,
+  "test_samples": 100,
+  "classes": [
+    "GENETIC",
+    "GREEDY",
+    "LOCAL_SEARCH"
+  ],
+  "feature_importance": {
+    "number_of_orders": 0.246,
+    "number_of_constraints": 0.2151,
+    "geographical_spread": 0.118,
+    "capacity_utilization": 0.1041,
+    "average_distance": 0.0927,
+    "number_of_vehicles": 0.0813,
+    "time_window_ratio": 0.0728,
+    "priority_ratio": 0.07
+  },
+  "trained_at": "2026-10-08T14:28:15.996760"
+}
