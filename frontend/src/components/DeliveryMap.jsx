@@ -1,7 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Layers } from 'lucide-react';
+
+// Free, Reliable Map Tile Providers (NO API key required, zero watermarks)
+const MAP_PROVIDERS = {
+  osm: {
+    id: 'osm',
+    name: 'OSM Streets',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19,
+  },
+  esri: {
+    id: 'esri',
+    name: 'Esri Modern',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
+    maxZoom: 19,
+  },
+  satellite: {
+    id: 'satellite',
+    name: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri World Imagery',
+    maxZoom: 19,
+  },
+};
 
 // Fix Leaflet default icon issues in bundlers
 delete L.Icon.Default.prototype._getIconUrl;
@@ -122,6 +147,7 @@ export default function DeliveryMap({
   const defaultCenter = [depot.latitude || 18.5308, depot.longitude || 73.8475];
   const [mapTarget, setMapTarget] = useState(null);
   const [mapZoom, setMapZoom] = useState(12);
+  const [mapStyle, setMapStyle] = useState('osm');
 
   // Collect all points for fitBounds
   const allPoints = [[defaultCenter[0], defaultCenter[1]]];
@@ -214,6 +240,45 @@ export default function DeliveryMap({
           <span>Pune City Delivery Grid (Maharashtra, India)</span>
         </div>
 
+        {/* Layer Switcher Pill Toolbar */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            zIndex: 1000,
+            background: 'rgba(15, 23, 42, 0.88)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(99, 102, 241, 0.4)',
+            borderRadius: '8px',
+            padding: '3px',
+            display: 'flex',
+            gap: '4px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+          }}
+        >
+          {Object.entries(MAP_PROVIDERS).map(([key, provider]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setMapStyle(key)}
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.72rem',
+                fontWeight: mapStyle === key ? '700' : '500',
+                color: mapStyle === key ? '#ffffff' : '#94a3b8',
+                background: mapStyle === key ? '#4f46e5' : 'transparent',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {provider.name}
+            </button>
+          ))}
+        </div>
+
         <MapContainer
           center={defaultCenter}
           zoom={12}
@@ -221,8 +286,10 @@ export default function DeliveryMap({
           attributionControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            maxZoom={19}
+            key={mapStyle}
+            url={MAP_PROVIDERS[mapStyle]?.url || MAP_PROVIDERS.osm.url}
+            attribution={MAP_PROVIDERS[mapStyle]?.attribution || MAP_PROVIDERS.osm.attribution}
+            maxZoom={MAP_PROVIDERS[mapStyle]?.maxZoom || 19}
           />
 
           <MapController targetCenter={mapTarget} targetZoom={mapZoom} />
