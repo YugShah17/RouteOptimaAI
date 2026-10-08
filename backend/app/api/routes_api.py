@@ -64,6 +64,10 @@ def health_check():
         "timestamp": datetime.utcnow().isoformat()
     }
 
+@router.get("/warehouses")
+def get_warehouses(db: Session = Depends(get_db)):
+    return db.query(Warehouse).all()
+
 # -------------------------------------------------------------
 # Dashboard Summary
 # -------------------------------------------------------------

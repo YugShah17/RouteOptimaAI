@@ -14,6 +14,12 @@ export const api = {
     return res.json();
   },
 
+  // Warehouses / Depots
+  getWarehouses: async () => {
+    const res = await fetch(`${API_BASE}/warehouses`);
+    return res.json();
+  },
+
   // Orders
   getOrders: async (params = {}) => {
     const q = new URLSearchParams(params).toString();

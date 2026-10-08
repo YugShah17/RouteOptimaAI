@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import DeliveryMap from '../components/DeliveryMap';
 import {
   Package,
   Truck,
@@ -9,17 +10,29 @@ import {
   ShieldCheck,
   Zap,
   ArrowUpRight,
-  Layers
+  Layers,
+  MapPin
 } from 'lucide-react';
 
 export default function DashboardPage({ onNavigate }) {
   const [data, setData] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
     try {
-      const summary = await api.getDashboard();
+      const [summary, ordersData, whData, routesData] = await Promise.all([
+        api.getDashboard(),
+        api.getOrders({ limit: 100 }),
+        api.getWarehouses(),
+        api.getRoutes()
+      ]);
       setData(summary);
+      setOrders(ordersData);
+      setWarehouses(whData);
+      setRoutes(routesData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -144,6 +157,35 @@ export default function DashboardPage({ onNavigate }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Pune Logistics Network Map Card */}
+      <div className="glass-card" style={{ padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: '700' }}>🗺️ Pune City Fleet & Delivery Network Map</h2>
+              <span className="badge badge-assigned">Interactive Pune Grid</span>
+            </div>
+            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '2px' }}>
+              Real-world hubs in Shivajinagar & Hadapsar connecting 60+ customer locations across Pune, Maharashtra.
+            </p>
+          </div>
+          <button
+            className="btn-secondary"
+            style={{ fontSize: '0.8rem', padding: '6px 14px' }}
+            onClick={() => onNavigate('pune-map')}
+          >
+            Open Full Screen Pune Map <ArrowUpRight size={14} />
+          </button>
+        </div>
+        <DeliveryMap
+          warehouses={warehouses}
+          orders={orders}
+          routes={routes}
+          height="450px"
+          showLocalityBar={true}
+        />
       </div>
 
       {/* Charts & Status Breakdown Grid */}

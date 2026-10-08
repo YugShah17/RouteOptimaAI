@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createWebSocket, api } from './services/api';
 import DashboardPage from './pages/DashboardPage';
+import PuneMapPage from './pages/PuneMapPage';
 import OrdersPage from './pages/OrdersPage';
 import CreateOrderPage from './pages/CreateOrderPage';
 import VehiclesPage from './pages/VehiclesPage';
@@ -21,7 +22,8 @@ import {
   Settings,
   PlusCircle,
   Menu,
-  X
+  X,
+  MapPin
 } from 'lucide-react';
 
 export default function App() {
@@ -75,6 +77,7 @@ export default function App() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'pune-map', label: 'Pune City Map', icon: MapPin },
     { id: 'orders', label: 'Orders', icon: Package },
     { id: 'create-order', label: 'Create / Import', icon: PlusCircle },
     { id: 'vehicles', label: 'Vehicles Fleet', icon: Truck },
@@ -89,6 +92,8 @@ export default function App() {
     switch (currentPage) {
       case 'dashboard':
         return <DashboardPage onNavigate={setCurrentPage} />;
+      case 'pune-map':
+        return <PuneMapPage onNavigate={setCurrentPage} />;
       case 'orders':
         return <OrdersPage onNavigate={setCurrentPage} />;
       case 'create-order':
