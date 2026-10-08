@@ -27,9 +27,10 @@ class Settings:
     GENETIC_POPULATION_SIZE: int = int(os.getenv("GENETIC_POPULATION_SIZE", "50"))
     GENETIC_GENERATIONS: int = int(os.getenv("GENETIC_GENERATIONS", "80"))
     
-    # Simulation
+    # Simulation & GPS Telemetry Security
     SIMULATION_SPEED: float = float(os.getenv("SIMULATION_SPEED", "1.0"))
-    
+    SIMULATION_API_KEY: str = os.getenv("SIMULATION_API_KEY", "dev-telemetry-key-2026")
+
     # ML Model Path
     ML_MODEL_PATH: Path = BASE_DIR / "backend" / "ml" / "model.joblib"
     ML_METRICS_PATH: Path = BASE_DIR / "backend" / "ml" / "metrics.json"

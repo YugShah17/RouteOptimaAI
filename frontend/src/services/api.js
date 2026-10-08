@@ -120,23 +120,71 @@ export const api = {
     return res.json();
   },
 
-  // Simulation
-  startSimulation: async (speed = 1.0) => {
-    const res = await fetch(`${API_BASE}/simulation/start?speed=${speed}`, {
-      method: "POST",
-    });
+  // API Key Utilities
+  getStoredApiKey: () => {
+    return localStorage.getItem('telemetry_api_key') || 'dev-telemetry-key-2026';
+  },
+
+  setStoredApiKey: (key) => {
+    localStorage.setItem('telemetry_api_key', key);
+  },
+
+  getSimulationApiKeyInfo: async () => {
+    const res = await fetch(`${API_BASE}/simulation/api-key-info`);
     return res.json();
   },
 
-  stopSimulation: async () => {
+  // Simulation Controls (API Key Protected)
+  startSimulation: async (speed = 1.0, apiKey = null) => {
+    const key = apiKey || api.getStoredApiKey();
+    const res = await fetch(`${API_BASE}/simulation/start?speed=${speed}`, {
+      method: "POST",
+      headers: {
+        "X-API-Key": key,
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Unauthorized: Invalid or missing API key");
+    }
+    return res.json();
+  },
+
+  stopSimulation: async (apiKey = null) => {
+    const key = apiKey || api.getStoredApiKey();
     const res = await fetch(`${API_BASE}/simulation/stop`, {
       method: "POST",
+      headers: {
+        "X-API-Key": key,
+      },
     });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Unauthorized: Invalid or missing API key");
+    }
     return res.json();
   },
 
   getSimulationStatus: async () => {
     const res = await fetch(`${API_BASE}/simulation/status`);
+    return res.json();
+  },
+
+  // Real GPS Telemetry Ingestion (API Key Protected)
+  sendVehicleTelemetry: async (vehicleId, telemetry, apiKey = null) => {
+    const key = apiKey || api.getStoredApiKey();
+    const res = await fetch(`${API_BASE}/vehicles/${vehicleId}/location`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": key,
+      },
+      body: JSON.stringify(telemetry),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Unauthorized: Telemetry rejected");
+    }
     return res.json();
   },
 

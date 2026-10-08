@@ -32,3 +32,20 @@ def test_geocode_fallback():
     data = response.json()
     assert "latitude" in data
     assert "longitude" in data
+
+def test_simulation_api_key_required():
+    # Without API key -> 401 Unauthorized
+    resp = client.post("/api/simulation/start?speed=1.0")
+    assert resp.status_code == 401
+
+    # With invalid API key -> 401 Unauthorized
+    resp_bad = client.post("/api/simulation/start?speed=1.0", headers={"X-API-Key": "wrong-key"})
+    assert resp_bad.status_code == 401
+
+    # With valid API key -> 200 OK
+    resp_good = client.post("/api/simulation/start?speed=1.0", headers={"X-API-Key": "dev-telemetry-key-2026"})
+    assert resp_good.status_code == 200
+
+    # Stop with valid API key
+    resp_stop = client.post("/api/simulation/stop", headers={"X-API-Key": "dev-telemetry-key-2026"})
+    assert resp_stop.status_code == 200

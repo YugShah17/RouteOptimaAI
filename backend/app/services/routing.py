@@ -140,6 +140,8 @@ class RoutingService:
     def get_distance_matrix(self, locations: List[Tuple[float, float]], db_session=None) -> Tuple[List[List[float]], List[List[float]]]:
         """
         Builds NxN distance (km) and duration (mins) matrix for the given locations.
+        Calculates distances instantly using road-adjusted geodesic distance (curvature 1.3x),
+        avoiding thousands of slow serial network requests, while OSRM provides road geometry for finalized routes.
         """
         n = len(locations)
         dist_matrix = [[0.0] * n for _ in range(n)]
@@ -151,13 +153,9 @@ class RoutingService:
                     dist_matrix[i][j] = 0.0
                     time_matrix[i][j] = 0.0
                 else:
-                    route_info = self.get_route(
-                        locations[i][0], locations[i][1],
-                        locations[j][0], locations[j][1],
-                        db_session=db_session
-                    )
-                    dist_matrix[i][j] = route_info["distance_km"]
-                    time_matrix[i][j] = route_info["duration_mins"]
+                    d = haversine_distance_km(locations[i][0], locations[i][1], locations[j][0], locations[j][1]) * 1.3
+                    dist_matrix[i][j] = round(d, 3)
+                    time_matrix[i][j] = round((d / 35.0) * 60, 2)
 
         return dist_matrix, time_matrix
 

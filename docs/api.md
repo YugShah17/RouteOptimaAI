@@ -17,12 +17,12 @@ FastAPI provides interactive Swagger documentation at `http://localhost:8000/doc
 - `POST /api/orders/import` — Multipart CSV import with strict row-by-row validation.
 - `GET /api/orders/export` — Download all orders in CSV format.
 
-### Fleet & Telemetry
+### Fleet & Telemetry (API Key Secured)
 - `GET /api/vehicles` — Retrieve fleet vehicles and current loads.
 - `POST /api/vehicles` — Register a new vehicle.
 - `GET /api/vehicles/{id}` — Retrieve vehicle details.
 - `PUT /api/vehicles/{id}` — Update vehicle attributes.
-- `POST /api/vehicles/{id}/location` — Ingest live GPS coordinates (`latitude`, `longitude`, `speed`). Broadcasts to all active WebSocket clients.
+- `POST /api/vehicles/{id}/location` — Ingest live GPS coordinates (`latitude`, `longitude`, `speed`). **Requires `X-API-Key` header or `?api_key=` parameter.** Broadcasts to all active WebSocket clients.
 
 ### Geocoding & Routing
 - `POST /api/geocode` — Resolve address string using Nominatim with fallback.
@@ -35,10 +35,11 @@ FastAPI provides interactive Swagger documentation at `http://localhost:8000/doc
 - `GET /api/optimization/runs` — Retrieve historical optimization audit logs.
 - `GET /api/optimization/runs/{id}` — Retrieve run diagnostics.
 
-### Simulation Controls
-- `POST /api/simulation/start?speed=1.0` — Start vehicle movement simulation along approved routes.
-- `POST /api/simulation/stop` — Pause or terminate simulation.
-- `GET /api/simulation/status` — Get simulation running state and speed factor.
+### Simulation Controls & Telemetry Security
+- `GET /api/simulation/api-key-info` — Retrieve telemetry API key configuration, expected header (`X-API-Key`), and integration curl examples.
+- `POST /api/simulation/start?speed=1.0` — Start vehicle movement simulation along approved routes. **Requires `X-API-Key` header or `?api_key=`.**
+- `POST /api/simulation/stop` — Pause or terminate simulation. **Requires `X-API-Key` header or `?api_key=`.**
+- `GET /api/simulation/status` — Get simulation running state, speed factor, and security protection status.
 
 ### Machine Learning
 - `GET /api/ml/metrics` — Retrieve trained Random Forest evaluation metrics (accuracy, F1, precision, recall, sample counts, feature importances).

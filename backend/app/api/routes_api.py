@@ -4,10 +4,11 @@ import json
 import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Header, UploadFile, File, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from backend.app.config import settings
 from backend.app.database import get_db
 from backend.app.models.entities import (
     Warehouse, Customer, Order, Vehicle, Route, RouteStop,
@@ -23,6 +24,22 @@ from backend.app.schemas.schemas import (
     DashboardSummaryResponse, MLMetricsResponse, OrderImportResponse
 )
 from backend.app.services.routing import routing_service
+
+# -------------------------------------------------------------
+# API Key Verification Dependency
+# -------------------------------------------------------------
+def verify_simulation_api_key(
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    api_key: Optional[str] = Query(None, alias="api_key")
+):
+    expected_key = settings.SIMULATION_API_KEY
+    provided_key = x_api_key or api_key
+    if not provided_key or provided_key != expected_key:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized: Invalid or missing Simulation/Telemetry API Key. Provide via 'X-API-Key' header or '?api_key=' parameter."
+        )
+    return provided_key
 from backend.app.services.complexity import complexity_service
 from backend.app.services.ml_service import ml_strategy_service
 from backend.app.services.websocket_manager import ws_manager
@@ -376,6 +393,7 @@ def update_vehicle(vehicle_id: int, v_in: VehicleUpdate, db: Session = Depends(g
 async def update_vehicle_location(
     vehicle_id: int,
     telemetry: VehicleTelemetryUpdate,
+    auth_key: str = Depends(verify_simulation_api_key),
     db: Session = Depends(get_db)
 ):
     veh = db.query(Vehicle).filter(Vehicle.id == vehicle_id).first()
@@ -835,21 +853,43 @@ def get_route_by_id(route_id: int, db: Session = Depends(get_db)):
     )
 
 # -------------------------------------------------------------
-# Simulation Controls
+# Simulation Controls & API Key Protected Telemetry
 # -------------------------------------------------------------
+@router.get("/simulation/api-key-info")
+def get_simulation_api_key_info():
+    return {
+        "api_key_required": True,
+        "configured_key": settings.SIMULATION_API_KEY,
+        "header_name": "X-API-Key",
+        "query_param": "api_key",
+        "curl_example": f'curl -X POST "http://localhost:8000/api/vehicles/1/location" -H "X-API-Key: {settings.SIMULATION_API_KEY}" -H "Content-Type: application/json" -d \'{{"latitude": 18.5308, "longitude": 73.8475, "speed": 35.0}}\''
+    }
+
 @router.post("/simulation/start")
-async def start_simulation(speed: float = Query(1.0, ge=0.2, le=10.0)):
+async def start_simulation(
+    speed: float = Query(1.0, ge=0.2, le=10.0),
+    auth_key: str = Depends(verify_simulation_api_key)
+):
     await simulation_service.start(speed=speed)
-    return {"message": "Simulation started", "speed": speed, "mode": "Simulation Mode"}
+    return {
+        "message": "Simulation started",
+        "speed": speed,
+        "mode": "Simulation Mode",
+        "authenticated_via": "API Key"
+    }
 
 @router.post("/simulation/stop")
-async def stop_simulation():
+async def stop_simulation(
+    auth_key: str = Depends(verify_simulation_api_key)
+):
     await simulation_service.stop()
-    return {"message": "Simulation stopped"}
+    return {"message": "Simulation stopped", "authenticated_via": "API Key"}
 
 @router.get("/simulation/status")
 def get_simulation_status():
-    return simulation_service.get_status()
+    status = simulation_service.get_status()
+    status["api_key_protected"] = True
+    return status
 
 # -------------------------------------------------------------
 # ML Model & Explainability
