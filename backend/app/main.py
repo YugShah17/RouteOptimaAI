@@ -20,7 +20,9 @@ logger = logging.getLogger("main")
 async def lifespan(app: FastAPI):
     logger.info("Initializing database schema...")
     Base.metadata.create_all(bind=engine)
-    logger.info("Database schema initialized.")
+    from backend.app.database import run_migrations
+    run_migrations()
+    logger.info("Database schema initialized and migrated.")
     yield
     # Shutdown logic
     logger.info("Shutting down services...")

@@ -54,6 +54,20 @@ export const api = {
     return res.json();
   },
 
+  retryGeocode: async (id) => {
+    const res = await fetch(`${API_BASE}/orders/${id}/retry-geocode`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to retry geocode");
+    }
+    return res.json();
+  },
+
+  getOrdersTemplateUrl: () => `${API_BASE}/orders/template`,
+  getOrdersExportUrl: () => `${API_BASE}/orders/export`,
+
   importOrders: async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -61,6 +75,10 @@ export const api = {
       method: "POST",
       body: formData,
     });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to import orders");
+    }
     return res.json();
   },
 
@@ -84,11 +102,12 @@ export const api = {
   },
 
   // Geocoding
-  geocode: async (address) => {
+  geocode: async (params) => {
+    const payload = typeof params === "string" ? { address: params } : params;
     const res = await fetch(`${API_BASE}/geocode`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address }),
+      body: JSON.stringify(payload),
     });
     return res.json();
   },

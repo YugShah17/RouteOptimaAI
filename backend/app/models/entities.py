@@ -40,8 +40,12 @@ class Order(Base):
     warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=True)
     customer_name = Column(String(100), nullable=False)
     address = Column(String(255), nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    area = Column(String(100), nullable=True)
+    pincode = Column(String(10), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    geocoding_status = Column(String(20), nullable=False, default="PENDING")  # PENDING, SUCCESS, FAILED
+    geocoding_error = Column(String(255), nullable=True)
     package_weight = Column(Float, nullable=False, default=5.0)  # in kg
     priority = Column(String(20), nullable=False, default="NORMAL")  # LOW, NORMAL, HIGH, URGENT
     time_window_start = Column(Integer, nullable=False, default=540)  # minutes from 00:00 (e.g. 540 = 09:00)

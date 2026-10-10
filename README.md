@@ -43,7 +43,7 @@ A production-style last-mile logistics decision-support and dispatch system that
 6. **Interactive Logistics Dashboard & Leaflet Map:**
    - Multi-vehicle colored route lines, depot markers, customer sequence indicators, and popups.
    - Before vs After benchmark comparisons (Distance Saved, % Improvement, Runtime).
-   - Order management with CSV bulk import and row-by-row validation.
+   - Order management with human-friendly CSV bulk import (no coordinates required: addresses automatically geocoded).
    - Fleet capacity gauges, optimization audit history, and model diagnostics.
 
 ---

@@ -190,27 +190,25 @@ export default function VehiclesPage() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Depot Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    className="form-input"
-                    value={formData.current_latitude}
-                    onChange={(e) => setFormData({ ...formData, current_latitude: parseFloat(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Depot Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    className="form-input"
-                    value={formData.current_longitude}
-                    onChange={(e) => setFormData({ ...formData, current_longitude: parseFloat(e.target.value) })}
-                  />
-                </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Base Depot / Operating Hub</label>
+                <select
+                  className="form-select"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === 'hadapsar') {
+                      setFormData({ ...formData, current_latitude: 18.5089, current_longitude: 73.9259 });
+                    } else if (val === 'kothrud') {
+                      setFormData({ ...formData, current_latitude: 18.5074, current_longitude: 73.8077 });
+                    } else {
+                      setFormData({ ...formData, current_latitude: 18.5308, current_longitude: 73.8475 });
+                    }
+                  }}
+                >
+                  <option value="shivajinagar">Central Depot (Shivajinagar, Pune)</option>
+                  <option value="hadapsar">East Hub (Hadapsar)</option>
+                  <option value="kothrud">West Hub (Kothrud)</option>
+                </select>
               </div>
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>

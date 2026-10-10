@@ -10,12 +10,14 @@ FastAPI provides interactive Swagger documentation at `http://localhost:8000/doc
 
 ### Order Management
 - `GET /api/orders` — List orders with filtering (`status`, `priority`, `search`, pagination `limit`, `offset`).
-- `POST /api/orders` — Create a single delivery order.
+- `POST /api/orders` — Create a single delivery order (accepts `customer_name`, `address`, `area`, `pincode`, `package_weight_kg`, `priority`, `time_window_start`, `time_window_end`; coordinates are automatically resolved by backend).
+- `GET /api/orders/template` — Download sample CSV template (`orders_sample_template.csv`) without coordinates.
+- `GET /api/orders/export` — Download all orders in CSV format.
+- `POST /api/orders/import` — Multipart CSV import with strict row-by-row validation, automatic geocoding, and failure breakdown.
 - `GET /api/orders/{id}` — Retrieve order details.
 - `PUT /api/orders/{id}` — Update order attributes.
+- `POST /api/orders/{id}/retry-geocode` — Retry geocoding for unlocated order.
 - `DELETE /api/orders/{id}` — Delete order.
-- `POST /api/orders/import` — Multipart CSV import with strict row-by-row validation.
-- `GET /api/orders/export` — Download all orders in CSV format.
 
 ### Fleet & Telemetry (API Key Secured)
 - `GET /api/vehicles` — Retrieve fleet vehicles and current loads.
@@ -25,7 +27,7 @@ FastAPI provides interactive Swagger documentation at `http://localhost:8000/doc
 - `POST /api/vehicles/{id}/location` — Ingest live GPS coordinates (`latitude`, `longitude`, `speed`). **Requires `X-API-Key` header or `?api_key=` parameter.** Broadcasts to all active WebSocket clients.
 
 ### Geocoding & Routing
-- `POST /api/geocode` — Resolve address string using Nominatim with fallback.
+- `POST /api/geocode` — Resolve address + area + pincode using Nominatim / OpenStreetMap and verified locality directory. Returns `{latitude, longitude, status, matched_area, error}`.
 - `GET /api/routes` — Retrieve generated delivery routes with stop sequences and polyline geometries.
 - `GET /api/routes/{id}` — Retrieve route detail.
 

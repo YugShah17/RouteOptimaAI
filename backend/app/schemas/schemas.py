@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
@@ -35,19 +36,40 @@ class CustomerResponse(CustomerBase):
 class OrderBase(BaseModel):
     customer_name: str
     address: str
-    latitude: float
-    longitude: float
+    area: Optional[str] = None
+    pincode: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     package_weight: float = Field(default=5.0, gt=0)
     priority: str = Field(default="NORMAL")  # LOW, NORMAL, HIGH, URGENT
     time_window_start: int = Field(default=540, ge=0, le=1440)  # minutes from 00:00 (540 = 09:00)
     time_window_end: int = Field(default=1080, ge=0, le=1440)   # minutes from 00:00 (1080 = 18:00)
     status: str = Field(default="PENDING")
+    geocoding_status: str = Field(default="PENDING")  # PENDING, SUCCESS, FAILED
+    geocoding_error: Optional[str] = None
+
+    @field_validator("address")
+    @classmethod
+    def validate_address(cls, v):
+        if not v or not v.strip():
+            raise ValueError("Address must not be empty")
+        return v.strip()
+
+    @field_validator("pincode")
+    @classmethod
+    def validate_pincode(cls, v):
+        if v is not None and v != "":
+            v_str = str(v).strip()
+            if not re.match(r"^[1-9][0-9]{5}$", v_str):
+                raise ValueError("Pincode must be a valid 6-digit Indian PIN code (e.g. 411045)")
+            return v_str
+        return None
 
     @field_validator("priority")
     @classmethod
     def validate_priority(cls, v):
         allowed = {"LOW", "NORMAL", "HIGH", "URGENT"}
-        if v.upper() not in allowed:
+        if not v or v.upper() not in allowed:
             raise ValueError(f"Priority must be one of {allowed}")
         return v.upper()
 
@@ -59,14 +81,63 @@ class OrderBase(BaseModel):
             raise ValueError("time_window_end must be greater than or equal to time_window_start")
         return v
 
-class OrderCreate(OrderBase):
+class OrderCreate(BaseModel):
     order_code: Optional[str] = None
+    order_id: Optional[str] = None
     customer_id: Optional[int] = None
     warehouse_id: Optional[int] = None
+    customer_name: str
+    address: str
+    area: Optional[str] = None
+    pincode: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    package_weight: Optional[float] = None
+    package_weight_kg: Optional[float] = None
+    priority: str = Field(default="NORMAL")
+    time_window_start: int = Field(default=540, ge=0, le=1440)
+    time_window_end: int = Field(default=1080, ge=0, le=1440)
+    status: str = Field(default="PENDING")
+    order_status: Optional[str] = None
+
+    @field_validator("address")
+    @classmethod
+    def validate_address(cls, v):
+        if not v or not v.strip():
+            raise ValueError("Address must not be empty")
+        return v.strip()
+
+    @field_validator("pincode")
+    @classmethod
+    def validate_pincode(cls, v):
+        if v is not None and v != "":
+            v_str = str(v).strip()
+            if not re.match(r"^[1-9][0-9]{5}$", v_str):
+                raise ValueError("Pincode must be a valid 6-digit Indian PIN code (e.g. 411045)")
+            return v_str
+        return None
+
+    @field_validator("priority")
+    @classmethod
+    def validate_priority(cls, v):
+        allowed = {"LOW", "NORMAL", "HIGH", "URGENT"}
+        if not v or v.upper() not in allowed:
+            raise ValueError(f"Priority must be one of {allowed}")
+        return v.upper()
+
+    @field_validator("time_window_end")
+    @classmethod
+    def validate_time_window(cls, v, info):
+        start = info.data.get("time_window_start")
+        if start is not None and v < start:
+            raise ValueError("time_window_end must be greater than or equal to time_window_start")
+        return v
 
 class OrderUpdate(BaseModel):
     customer_name: Optional[str] = None
     address: Optional[str] = None
+    area: Optional[str] = None
+    pincode: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     package_weight: Optional[float] = Field(default=None, gt=0)
@@ -74,6 +145,8 @@ class OrderUpdate(BaseModel):
     time_window_start: Optional[int] = None
     time_window_end: Optional[int] = None
     status: Optional[str] = None
+    geocoding_status: Optional[str] = None
+    geocoding_error: Optional[str] = None
     assigned_vehicle_id: Optional[int] = None
 
 class OrderResponse(OrderBase):
@@ -81,6 +154,12 @@ class OrderResponse(OrderBase):
     order_code: str
     customer_id: Optional[int] = None
     warehouse_id: Optional[int] = None
+    area: Optional[str] = None
+    pincode: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    geocoding_status: str = "PENDING"
+    geocoding_error: Optional[str] = None
     assigned_vehicle_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
@@ -178,13 +257,19 @@ class RouteResponse(BaseModel):
 
 class GeocodeRequest(BaseModel):
     address: str
+    area: Optional[str] = None
+    pincode: Optional[str] = None
 
 class GeocodeResponse(BaseModel):
     address: str
-    latitude: float
-    longitude: float
-    display_name: str
-    found: bool
+    area: Optional[str] = None
+    pincode: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    display_name: Optional[str] = None
+    status: str = "SUCCESS"  # SUCCESS or FAILED
+    found: bool = True
+    error: Optional[str] = None
 
 # --- Complexity & ML Schemas ---
 
@@ -297,6 +382,9 @@ class OrderImportRowResult(BaseModel):
 class OrderImportResponse(BaseModel):
     total_rows: int
     valid_count: int
-    invalid_count: int
+    geocoded_count: int = 0
+    geocoding_failed_count: int = 0
+    invalid_count: int = 0
     imported_orders: List[OrderResponse] = []
     errors: List[str] = []
+    failed_rows: List[Dict[str, Any]] = []

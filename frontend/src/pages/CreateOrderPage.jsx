@@ -8,25 +8,29 @@ import {
   AlertTriangle,
   CheckCircle2,
   ArrowLeft,
-  FileText
+  FileText,
+  Download,
+  XCircle,
+  HelpCircle
 } from 'lucide-react';
 
 export default function CreateOrderPage({ onNavigate }) {
   const [tab, setTab] = useState('single'); // 'single' | 'import'
 
-  // Single Form State
+  // Single Form State - NO latitude or longitude fields requested from user
   const [formData, setFormData] = useState({
     customer_name: '',
-    address: 'Kothrud Vanaz Corner, Pune',
-    latitude: 18.5074,
-    longitude: 73.8077,
-    package_weight: 8.5,
+    address: 'Baner Road',
+    area: 'Baner',
+    pincode: '411045',
+    package_weight: 5.0,
     priority: 'NORMAL',
     time_window_start: 540,
     time_window_end: 1080
   });
 
   const [geocoding, setGeocoding] = useState(false);
+  const [geocodePreview, setGeocodePreview] = useState(null);
   const [geocodeMessage, setGeocodeMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -36,23 +40,26 @@ export default function CreateOrderPage({ onNavigate }) {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
-  const handleGeocode = async () => {
+  // Optional manual test geocode button to preview internal location
+  const handleTestGeocode = async () => {
     if (!formData.address) return;
     setGeocoding(true);
     setGeocodeMessage('');
     try {
-      const res = await api.geocode(formData.address);
-      if (res.found) {
-        setFormData({
-          ...formData,
-          latitude: res.latitude,
-          longitude: res.longitude,
-        });
-        setGeocodeMessage(`✓ Found coordinates: ${res.latitude.toFixed(4)}, ${res.longitude.toFixed(4)}`);
+      const res = await api.geocode({
+        address: formData.address,
+        area: formData.area,
+        pincode: formData.pincode
+      });
+      if (res.status === 'SUCCESS' && res.latitude != null && res.longitude != null) {
+        setGeocodePreview({ latitude: res.latitude, longitude: res.longitude });
+        setGeocodeMessage(`✓ Location verified in ${res.matched_area || 'Pune'}: Coordinates resolved.`);
       } else {
-        setGeocodeMessage(`Notice: Address not found in Nominatim; retained default coordinates.`);
+        setGeocodePreview(null);
+        setGeocodeMessage(`⚠️ Notice: This address could not be located. Please verify the address, area, or pincode.`);
       }
     } catch (e) {
+      setGeocodePreview(null);
       setGeocodeMessage(`Geocoding error: ${e.message}`);
     } finally {
       setGeocoding(false);
@@ -64,13 +71,25 @@ export default function CreateOrderPage({ onNavigate }) {
     setSubmitting(true);
     setSubmitError('');
     try {
-      await api.createOrder({
-        ...formData,
+      // Backend automatically geocodes address, area, pincode
+      const created = await api.createOrder({
+        customer_name: formData.customer_name,
+        address: formData.address,
+        area: formData.area,
+        pincode: formData.pincode,
         package_weight: parseFloat(formData.package_weight),
+        priority: formData.priority,
         time_window_start: parseInt(formData.time_window_start),
         time_window_end: parseInt(formData.time_window_end)
       });
-      alert('Order created successfully!');
+
+      if (created.geocoding_status === 'FAILED') {
+        alert(
+          `Order created (#${created.order_code}), but location could not be verified automatically:\n"This address could not be located. Please verify the address, area, or pincode."\nYou can review it on the Orders page.`
+        );
+      } else {
+        alert(`Order ${created.order_code} registered & geocoded successfully!`);
+      }
       onNavigate('orders');
     } catch (e) {
       setSubmitError(e.message || 'Failed to create order');
@@ -97,7 +116,7 @@ export default function CreateOrderPage({ onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Top Header */}
-      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <button
             onClick={() => onNavigate('orders')}
@@ -105,7 +124,10 @@ export default function CreateOrderPage({ onNavigate }) {
           >
             <ArrowLeft size={16} /> Back to Orders
           </button>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: '700' }}>Create or Import Delivery Orders</h1>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: '700' }}>Add Delivery Orders</h1>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '2px' }}>
+            Simply enter human-friendly address, area, and pincode. Coordinates are resolved automatically by the backend.
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
@@ -127,7 +149,7 @@ export default function CreateOrderPage({ onNavigate }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
           {/* Form Side */}
           <div className="glass-card" style={{ padding: '24px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '16px' }}>Order Details & Location</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '16px' }}>Order Details & Delivery Address</h2>
 
             {submitError && (
               <div style={{ padding: '12px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid #f43f5e', borderRadius: '8px', color: '#fb7185', fontSize: '0.85rem', marginBottom: '16px' }}>
@@ -150,55 +172,71 @@ export default function CreateOrderPage({ onNavigate }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Delivery Address *</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Baner High Street, Pune"
-                    className="form-input"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  />
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    style={{ whiteSpace: 'nowrap' }}
-                    onClick={handleGeocode}
-                    disabled={geocoding}
-                  >
-                    <Search size={16} /> {geocoding ? 'Looking up...' : 'Geocode'}
-                  </button>
-                </div>
-                {geocodeMessage && (
-                  <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '4px' }}>
-                    {geocodeMessage}
-                  </div>
-                )}
+                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Street / Premise Address *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Baner Road, Near High Street"
+                  className="form-input"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Latitude</label>
+                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Area / Locality</label>
                   <input
-                    type="number"
-                    step="any"
+                    type="text"
+                    placeholder="e.g. Baner, Kothrud, Wakad"
                     className="form-input"
-                    value={formData.latitude}
-                    onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                    value={formData.area}
+                    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Longitude</label>
+                  <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Pincode (6 digits)</label>
                   <input
-                    type="number"
-                    step="any"
+                    type="text"
+                    placeholder="e.g. 411045"
+                    maxLength={6}
                     className="form-input"
-                    value={formData.longitude}
-                    onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                    value={formData.pincode}
+                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                   />
                 </div>
               </div>
+
+              {/* Address verification test trigger */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #1e293b', borderRadius: '8px' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                  <MapPin size={14} style={{ display: 'inline', marginRight: '5px', color: '#6366f1' }} />
+                  Coordinates will be generated automatically on save.
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ fontSize: '0.75rem', padding: '4px 10px' }}
+                  onClick={handleTestGeocode}
+                  disabled={geocoding || !formData.address}
+                >
+                  <Search size={13} style={{ marginRight: '4px' }} />
+                  {geocoding ? 'Verifying...' : 'Verify Address'}
+                </button>
+              </div>
+
+              {geocodeMessage && (
+                <div style={{
+                  fontSize: '0.75rem',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  background: geocodeMessage.startsWith('✓') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: geocodeMessage.startsWith('✓') ? '#34d399' : '#f87171',
+                  border: `1px solid ${geocodeMessage.startsWith('✓') ? '#10b981' : '#ef4444'}`
+                }}>
+                  {geocodeMessage}
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
@@ -223,7 +261,6 @@ export default function CreateOrderPage({ onNavigate }) {
                     <option value="LOW">LOW</option>
                     <option value="NORMAL">NORMAL</option>
                     <option value="HIGH">HIGH</option>
-                    <option value="URGENT">URGENT</option>
                   </select>
                 </div>
               </div>
@@ -261,7 +298,7 @@ export default function CreateOrderPage({ onNavigate }) {
 
               <div style={{ marginTop: '12px' }}>
                 <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={submitting}>
-                  {submitting ? 'Creating Order...' : 'Save & Register Order'}
+                  {submitting ? 'Geocoding & Creating Order...' : 'Save & Register Order'}
                 </button>
               </div>
             </form>
@@ -269,19 +306,24 @@ export default function CreateOrderPage({ onNavigate }) {
 
           {/* Map Preview Side */}
           <div className="glass-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '14px' }}>Location Preview</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '14px' }}>Internal Geocoding Map</h2>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '10px' }}>
+              The backend uses Nominatim / OpenStreetMap to map human-readable addresses to coordinates for routing and optimization.
+            </div>
             <div style={{ flex: 1, minHeight: '360px' }}>
               <DeliveryMap
-                orders={[{
+                orders={geocodePreview ? [{
                   id: 999,
-                  customer_name: formData.customer_name || 'New Customer',
+                  customer_name: formData.customer_name || 'Destination Preview',
                   address: formData.address,
-                  latitude: formData.latitude,
-                  longitude: formData.longitude,
+                  area: formData.area,
+                  pincode: formData.pincode,
+                  latitude: geocodePreview.latitude,
+                  longitude: geocodePreview.longitude,
                   package_weight: formData.package_weight,
                   priority: formData.priority,
                   status: 'PENDING'
-                }]}
+                }] : []}
                 height="380px"
               />
             </div>
@@ -290,12 +332,23 @@ export default function CreateOrderPage({ onNavigate }) {
       ) : (
         /* CSV Import Tab */
         <div className="glass-card" style={{ padding: '24px' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '12px' }}>Bulk Order CSV Import</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Bulk Order CSV Import (No Coordinates Required)</h2>
+            <a
+              href={api.getOrdersTemplateUrl()}
+              download="orders_sample_template.csv"
+              className="btn-secondary"
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Download size={15} /> Download Sample CSV Template
+            </a>
+          </div>
+
           <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '20px' }}>
-            Upload a CSV containing delivery destinations. Every row is strictly validated against weight, coordinates, and time windows.
+            Upload a CSV containing your delivery orders without latitude or longitude. The system validates fields and automatically resolves geographic coordinates.
           </p>
 
-          <form onSubmit={handleImportSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '600px' }}>
+          <form onSubmit={handleImportSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '640px' }}>
             <div style={{ border: '2px dashed #233554', borderRadius: '12px', padding: '30px', textAlign: 'center', background: '#0a1022' }}>
               <FileText size={36} style={{ color: '#6366f1', margin: '0 auto 10px auto' }} />
               <input
@@ -305,42 +358,85 @@ export default function CreateOrderPage({ onNavigate }) {
                 onChange={(e) => setImportFile(e.target.files[0])}
                 style={{ display: 'block', margin: '0 auto', fontSize: '0.85rem' }}
               />
-              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '8px' }}>
-                Columns: <code>customer_name, address, latitude, longitude, package_weight, priority, time_window_start, time_window_end</code>
+              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '10px', lineHeight: '1.4' }}>
+                Required Format: <code>order_id, customer_id, customer_name, address, area, pincode, package_weight_kg, priority, time_window_start, time_window_end, order_status</code>
               </div>
             </div>
 
             <button type="submit" className="btn-primary" disabled={importing || !importFile}>
-              {importing ? 'Processing CSV...' : 'Validate and Import Orders'}
+              {importing ? 'Processing and Geocoding Addresses...' : 'Validate and Import Orders'}
             </button>
           </form>
 
           {importResult && (
             <div style={{ marginTop: '24px', borderTop: '1px solid #233554', paddingTop: '20px' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '12px' }}>Import Summary</h3>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                <div style={{ padding: '12px 20px', background: '#0b1329', borderRadius: '8px', border: '1px solid #233554' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '12px' }}>Import & Geocoding Results</h3>
+
+              {/* Exact format required: 100 rows imported, 94 successfully geocoded, 6 addresses could not be geocoded */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+                <div style={{ padding: '14px 20px', background: '#0b1329', borderRadius: '8px', border: '1px solid #233554' }}>
                   <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Total Processed</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: '700' }}>{importResult.total_rows}</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{importResult.total_rows} rows imported</div>
                 </div>
-                <div style={{ padding: '12px 20px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#34d399' }}>Successfully Imported</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: '700', color: '#10b981' }}>{importResult.valid_count}</div>
+
+                <div style={{ padding: '14px 20px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#34d399' }}>Successfully Geocoded</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>{importResult.geocoded_count} successfully geocoded</div>
                 </div>
-                <div style={{ padding: '12px 20px', background: 'rgba(244, 63, 94, 0.1)', borderRadius: '8px', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#fb7185' }}>Invalid Rows</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: '700', color: '#f43f5e' }}>{importResult.invalid_count}</div>
+
+                <div style={{ padding: '14px 20px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#f87171' }}>Geocoding Failed</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#ef4444' }}>{importResult.geocoding_failed_count} addresses could not be geocoded</div>
                 </div>
+
+                {importResult.invalid_count > 0 && (
+                  <div style={{ padding: '14px 20px', background: 'rgba(244, 63, 94, 0.1)', borderRadius: '8px', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#fb7185' }}>Invalid / Format Errors</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#f43f5e' }}>{importResult.invalid_count} rejected rows</div>
+                  </div>
+                )}
               </div>
 
-              {importResult.errors.length > 0 && (
-                <div>
-                  <h4 style={{ fontSize: '0.85rem', color: '#fb7185', fontWeight: '600', marginBottom: '8px' }}>Validation Errors:</h4>
-                  <div style={{ maxHeight: '160px', overflowY: 'auto', background: '#090e1a', padding: '12px', borderRadius: '8px', border: '1px solid rgba(244, 63, 94, 0.3)', fontSize: '0.8rem', color: '#fca5a5' }}>
-                    {importResult.errors.map((err, i) => (
-                      <div key={i} style={{ marginBottom: '4px' }}>• {err}</div>
-                    ))}
+              {/* Failed Rows Viewer */}
+              {importResult.failed_rows && importResult.failed_rows.length > 0 && (
+                <div style={{ marginTop: '16px' }}>
+                  <h4 style={{ fontSize: '0.9rem', color: '#f87171', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <XCircle size={16} /> Problematic Rows Detail ({importResult.failed_rows.length}):
+                  </h4>
+                  <div style={{ maxHeight: '240px', overflowY: 'auto', border: '1px solid #233554', borderRadius: '8px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
+                      <thead style={{ background: '#0a1022', color: '#94a3b8' }}>
+                        <tr>
+                          <th style={{ padding: '8px 12px' }}>Row</th>
+                          <th style={{ padding: '8px 12px' }}>Order ID</th>
+                          <th style={{ padding: '8px 12px' }}>Customer</th>
+                          <th style={{ padding: '8px 12px' }}>Address</th>
+                          <th style={{ padding: '8px 12px' }}>Area / PIN</th>
+                          <th style={{ padding: '8px 12px' }}>Failure Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {importResult.failed_rows.map((row, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #1e293b' }}>
+                            <td style={{ padding: '8px 12px', color: '#64748b' }}>#{row.row_number}</td>
+                            <td style={{ padding: '8px 12px', fontWeight: '600', color: '#cbd5e1' }}>{row.order_id}</td>
+                            <td style={{ padding: '8px 12px' }}>{row.customer_name}</td>
+                            <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{row.address}</td>
+                            <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{row.area || '-'} {row.pincode ? `(${row.pincode})` : ''}</td>
+                            <td style={{ padding: '8px 12px', color: '#f87171' }}>{row.reason}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
+                </div>
+              )}
+
+              {importResult.valid_count > 0 && (
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="btn-primary" onClick={() => onNavigate('orders')}>
+                    View All Orders in System
+                  </button>
                 </div>
               )}
             </div>

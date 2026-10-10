@@ -1,0 +1,6 @@
+order_id,customer_id,customer_name,address,area,pincode,package_weight_kg,priority,time_window_start,time_window_end,order_status
+ORD001,C001,Customer 1,Baner Road,Baner,411045,2.5,HIGH,10:00,12:00,PENDING
+ORD002,C002,Customer 2,Wakad Road,Wakad,411057,1.8,NORMAL,12:00,14:00,PENDING
+ORD003,C003,Customer 3,Aundh Road,Aundh,411007,3.2,HIGH,14:00,16:00,PENDING
+ORD004,C004,Customer 4,Kothrud Vanaz Corner,Kothrud,411038,4.0,NORMAL,11:00,15:00,PENDING
+ORD005,C005,Customer 5,Viman Nagar Central,Viman Nagar,411014,1.5,LOW,13:00,17:00,PENDING

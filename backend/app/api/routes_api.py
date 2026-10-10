@@ -1,6 +1,7 @@
 import io
 import csv
 import json
+import re
 import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
@@ -24,6 +25,7 @@ from backend.app.schemas.schemas import (
     DashboardSummaryResponse, MLMetricsResponse, OrderImportResponse
 )
 from backend.app.services.routing import routing_service
+from backend.app.services.geocoding import geocoding_service
 
 # -------------------------------------------------------------
 # API Key Verification Dependency
@@ -179,37 +181,302 @@ def get_orders(
 
 @router.post("/orders", response_model=OrderResponse)
 def create_order(order_in: OrderCreate, db: Session = Depends(get_db)):
-    if not order_in.order_code:
+    code = order_in.order_code or order_in.order_id
+    if not code:
         count = db.query(Order).count() + 1
-        order_in.order_code = f"ORD-{count:04d}"
+        code = f"ORD-{count:04d}"
 
     # Verify unique code
-    existing = db.query(Order).filter(Order.order_code == order_in.order_code).first()
+    existing = db.query(Order).filter(Order.order_code == code).first()
     if existing:
-        order_in.order_code = f"ORD-{db.query(Order).count() + 10:04d}"
+        code = f"ORD-{db.query(Order).count() + 10:04d}"
 
     # Default warehouse if none specified
     wh = db.query(Warehouse).first()
-    warehouse_id = wh.id if wh else None
+    warehouse_id = order_in.warehouse_id or (wh.id if wh else None)
+
+    # Resolve package weight (support package_weight or package_weight_kg)
+    pkg_weight = order_in.package_weight_kg if order_in.package_weight_kg is not None else (order_in.package_weight or 5.0)
+
+    # Automatic Geocoding
+    lat = order_in.latitude
+    lon = order_in.longitude
+    geo_status = "PENDING"
+    geo_error = None
+
+    if lat is not None and lon is not None:
+        geo_status = "SUCCESS"
+    else:
+        # Perform automatic geocoding using dedicated geocoding service
+        geo_res = geocoding_service.geocode(order_in.address, area=order_in.area, pincode=order_in.pincode)
+        if geo_res.get("found") and geo_res.get("latitude") is not None and geo_res.get("longitude") is not None:
+            lat = geo_res["latitude"]
+            lon = geo_res["longitude"]
+            geo_status = "SUCCESS"
+        else:
+            lat = None
+            lon = None
+            geo_status = "FAILED"
+            geo_error = geo_res.get("error") or "This address could not be located. Please verify the address, area, or pincode."
 
     order = Order(
-        order_code=order_in.order_code,
+        order_code=code,
         customer_id=order_in.customer_id,
         warehouse_id=warehouse_id,
         customer_name=order_in.customer_name,
         address=order_in.address,
-        latitude=order_in.latitude,
-        longitude=order_in.longitude,
-        package_weight=order_in.package_weight,
+        area=order_in.area,
+        pincode=order_in.pincode,
+        latitude=lat,
+        longitude=lon,
+        geocoding_status=geo_status,
+        geocoding_error=geo_error,
+        package_weight=pkg_weight,
         priority=order_in.priority,
         time_window_start=order_in.time_window_start,
         time_window_end=order_in.time_window_end,
-        status="PENDING"
+        status=order_in.order_status or order_in.status or "PENDING"
     )
     db.add(order)
     db.commit()
     db.refresh(order)
     return order
+
+@router.get("/orders/template")
+def get_orders_template():
+    """
+    Returns downloadable sample CSV template for bulk order uploads without coordinates.
+    """
+    csv_content = (
+        "order_id,customer_id,customer_name,address,area,pincode,package_weight_kg,priority,time_window_start,time_window_end,order_status\n"
+        "ORD001,C001,Customer 1,Baner Road,Baner,411045,2.5,HIGH,10:00,12:00,PENDING\n"
+        "ORD002,C002,Customer 2,Wakad Road,Wakad,411057,1.8,NORMAL,12:00,14:00,PENDING\n"
+        "ORD003,C003,Customer 3,Aundh Road,Aundh,411007,3.2,HIGH,14:00,16:00,PENDING\n"
+        "ORD004,C004,Customer 4,Kothrud Vanaz Corner,Kothrud,411038,4.0,NORMAL,11:00,15:00,PENDING\n"
+        "ORD005,C005,Customer 5,Viman Nagar Central,Viman Nagar,411014,1.5,LOW,13:00,17:00,PENDING\n"
+    )
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=orders_sample_template.csv"}
+    )
+
+@router.post("/orders/import", response_model=OrderImportResponse)
+async def import_orders_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    contents = await file.read()
+    decoded = contents.decode("utf-8")
+    reader = csv.DictReader(io.StringIO(decoded))
+
+    wh = db.query(Warehouse).first()
+    warehouse_id = wh.id if wh else None
+
+    total_rows = 0
+    valid_count = 0
+    geocoded_count = 0
+    geocoding_failed_count = 0
+    invalid_count = 0
+    errors = []
+    failed_rows = []
+    created_orders = []
+
+    def parse_time_minutes(val_str: str, default: int) -> int:
+        if not val_str:
+            return default
+        val = val_str.strip()
+        if ":" in val:
+            parts = val.split(":")
+            return int(parts[0]) * 60 + int(parts[1])
+        return int(val) if val.isdigit() else default
+
+    for row_idx, row in enumerate(reader, start=1):
+        total_rows += 1
+        # Case-insensitive header matching
+        normalized = {k.strip().lower() if k else "": v.strip() if v else "" for k, v in row.items()}
+
+        try:
+            # 1. Required fields: customer_name, address
+            cust_name = normalized.get("customer_name") or normalized.get("customer")
+            address = normalized.get("address")
+            if not cust_name:
+                raise ValueError("Customer name is required")
+            if not address:
+                raise ValueError("Address is required")
+
+            area = normalized.get("area") or None
+            pincode = normalized.get("pincode") or None
+
+            # 2. Validate pincode
+            if pincode:
+                if not re.match(r"^[1-9][0-9]{5}$", pincode):
+                    raise ValueError(f"Invalid Indian PIN code format '{pincode}'. Must be 6 digits.")
+
+            # 3. Validate package weight
+            weight_str = (
+                normalized.get("package_weight_kg") or
+                normalized.get("package_weight") or
+                normalized.get("weight") or
+                "5.0"
+            )
+            try:
+                weight = float(weight_str)
+                if weight <= 0:
+                    raise ValueError("Package weight must be greater than 0")
+            except ValueError as ve:
+                raise ValueError(f"Invalid package weight '{weight_str}': {str(ve)}")
+
+            # 4. Validate priority
+            prio = (normalized.get("priority") or "NORMAL").upper()
+            if prio not in ("LOW", "NORMAL", "HIGH", "URGENT"):
+                prio = "NORMAL"
+
+            # 5. Validate time window
+            tw_s_raw = normalized.get("time_window_start") or "540"
+            tw_e_raw = normalized.get("time_window_end") or "1080"
+            tw_start = parse_time_minutes(tw_s_raw, 540)
+            tw_end = parse_time_minutes(tw_e_raw, 1080)
+            if tw_end < tw_start:
+                raise ValueError(f"Time window end ({tw_e_raw}) must be >= start ({tw_s_raw})")
+
+            # 6. Automatic geocoding (use coordinates if supplied, otherwise lookup)
+            lat_str = normalized.get("latitude") or normalized.get("lat")
+            lon_str = normalized.get("longitude") or normalized.get("lng") or normalized.get("lon")
+            lat = None
+            lon = None
+            geo_status = "PENDING"
+            geo_error = None
+
+            if lat_str and lon_str:
+                try:
+                    lat = float(lat_str)
+                    lon = float(lon_str)
+                    geo_status = "SUCCESS"
+                except Exception:
+                    lat = None
+                    lon = None
+
+            if lat is None or lon is None:
+                geo_res = geocoding_service.geocode(address, area=area, pincode=pincode)
+                if geo_res.get("found") and geo_res.get("latitude") is not None and geo_res.get("longitude") is not None:
+                    lat = geo_res["latitude"]
+                    lon = geo_res["longitude"]
+                    geo_status = "SUCCESS"
+                else:
+                    lat = None
+                    lon = None
+                    geo_status = "FAILED"
+                    geo_error = geo_res.get("error") or "This address could not be located. Please verify the address, area, or pincode."
+
+            # Order code
+            code = (
+                normalized.get("order_id") or
+                normalized.get("order_code") or
+                f"IMP-{row_idx:04d}-{int(datetime.utcnow().timestamp())}"
+            )
+            if db.query(Order).filter(Order.order_code == code).first():
+                code = f"IMP-{row_idx:04d}-{int(datetime.utcnow().timestamp())}"
+
+            ord_status = (normalized.get("order_status") or normalized.get("status") or "PENDING").upper()
+            if ord_status not in ("PENDING", "ASSIGNED", "OUT_FOR_DELIVERY", "DELIVERED", "FAILED", "CANCELLED"):
+                ord_status = "PENDING"
+
+            ord_obj = Order(
+                order_code=code,
+                warehouse_id=warehouse_id,
+                customer_name=cust_name,
+                address=address,
+                area=area,
+                pincode=pincode,
+                latitude=lat,
+                longitude=lon,
+                geocoding_status=geo_status,
+                geocoding_error=geo_error,
+                package_weight=weight,
+                priority=prio,
+                time_window_start=tw_start,
+                time_window_end=tw_end,
+                status=ord_status
+            )
+            db.add(ord_obj)
+            created_orders.append(ord_obj)
+            valid_count += 1
+            if geo_status == "SUCCESS":
+                geocoded_count += 1
+            else:
+                geocoding_failed_count += 1
+                failed_rows.append({
+                    "row_number": row_idx,
+                    "order_id": code,
+                    "customer_name": cust_name,
+                    "address": address,
+                    "area": area,
+                    "pincode": pincode,
+                    "reason": geo_error
+                })
+
+        except Exception as e:
+            invalid_count += 1
+            err_msg = f"Row {row_idx}: {str(e)}"
+            errors.append(err_msg)
+            failed_rows.append({
+                "row_number": row_idx,
+                "order_id": normalized.get("order_id") or f"Row {row_idx}",
+                "customer_name": normalized.get("customer_name") or "",
+                "address": normalized.get("address") or "",
+                "area": normalized.get("area") or "",
+                "pincode": normalized.get("pincode") or "",
+                "reason": str(e)
+            })
+
+    db.commit()
+    for o in created_orders:
+        db.refresh(o)
+
+    return OrderImportResponse(
+        total_rows=total_rows,
+        valid_count=valid_count,
+        geocoded_count=geocoded_count,
+        geocoding_failed_count=geocoding_failed_count,
+        invalid_count=invalid_count,
+        imported_orders=created_orders,
+        errors=errors,
+        failed_rows=failed_rows
+    )
+
+@router.get("/orders/export")
+def export_orders_csv(db: Session = Depends(get_db)):
+    orders = db.query(Order).all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "order_id", "order_code", "customer_name", "address", "area", "pincode",
+        "latitude", "longitude", "geocoding_status", "package_weight_kg",
+        "priority", "time_window_start", "time_window_end", "order_status"
+    ])
+    for o in orders:
+        s_h = f"{o.time_window_start // 60:02d}:{o.time_window_start % 60:02d}"
+        e_h = f"{o.time_window_end // 60:02d}:{o.time_window_end % 60:02d}"
+        writer.writerow([
+            o.id,
+            o.order_code,
+            o.customer_name,
+            o.address,
+            o.area or "",
+            o.pincode or "",
+            round(o.latitude, 6) if o.latitude is not None else "",
+            round(o.longitude, 6) if o.longitude is not None else "",
+            o.geocoding_status,
+            o.package_weight,
+            o.priority,
+            s_h,
+            e_h,
+            o.status
+        ])
+
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=orders_export.csv"}
+    )
 
 @router.get("/orders/{order_id}", response_model=OrderResponse)
 def get_order(order_id: int, db: Session = Depends(get_db)):
@@ -225,8 +492,49 @@ def update_order(order_id: int, order_in: OrderUpdate, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="Order not found")
 
     update_data = order_in.model_dump(exclude_unset=True)
+    address_changed = "address" in update_data or "area" in update_data or "pincode" in update_data
+
     for field, val in update_data.items():
         setattr(order, field, val)
+
+    # Re-geocode if address changed and coordinates were not manually supplied
+    if address_changed and "latitude" not in update_data and "longitude" not in update_data:
+        geo_res = geocoding_service.geocode(order.address, area=order.area, pincode=order.pincode)
+        if geo_res.get("found") and geo_res.get("latitude") is not None and geo_res.get("longitude") is not None:
+            order.latitude = geo_res["latitude"]
+            order.longitude = geo_res["longitude"]
+            order.geocoding_status = "SUCCESS"
+            order.geocoding_error = None
+        else:
+            order.latitude = None
+            order.longitude = None
+            order.geocoding_status = "FAILED"
+            order.geocoding_error = geo_res.get("error") or "This address could not be located. Please verify the address, area, or pincode."
+
+    db.commit()
+    db.refresh(order)
+    return order
+
+@router.post("/orders/{order_id}/retry-geocode", response_model=OrderResponse)
+def retry_order_geocode(order_id: int, db: Session = Depends(get_db)):
+    """
+    Retries geocoding for an order that previously failed.
+    """
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    geo_res = geocoding_service.geocode(order.address, area=order.area, pincode=order.pincode)
+    if geo_res.get("found") and geo_res.get("latitude") is not None and geo_res.get("longitude") is not None:
+        order.latitude = geo_res["latitude"]
+        order.longitude = geo_res["longitude"]
+        order.geocoding_status = "SUCCESS"
+        order.geocoding_error = None
+    else:
+        order.latitude = None
+        order.longitude = None
+        order.geocoding_status = "FAILED"
+        order.geocoding_error = geo_res.get("error") or "This address could not be located. Please verify the address, area, or pincode."
 
     db.commit()
     db.refresh(order)
@@ -240,110 +548,6 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
     db.delete(order)
     db.commit()
     return {"message": f"Order {order_id} deleted successfully"}
-
-@router.post("/orders/import", response_model=OrderImportResponse)
-async def import_orders_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    contents = await file.read()
-    decoded = contents.decode("utf-8")
-    reader = csv.DictReader(io.StringIO(decoded))
-
-    wh = db.query(Warehouse).first()
-    warehouse_id = wh.id if wh else None
-
-    total_rows = 0
-    valid_count = 0
-    invalid_count = 0
-    errors = []
-    created_orders = []
-
-    for row_idx, row in enumerate(reader, start=1):
-        total_rows += 1
-        try:
-            cust_name = row.get("customer_name") or row.get("customer") or f"Customer {row_idx}"
-            address = row.get("address") or f"Location {row_idx}"
-            lat_str = row.get("latitude") or row.get("lat")
-            lon_str = row.get("longitude") or row.get("lng") or row.get("lon")
-            weight_str = row.get("package_weight") or row.get("weight") or "5.0"
-            prio = (row.get("priority") or "NORMAL").upper()
-            tw_s_str = row.get("time_window_start") or "540"
-            tw_e_str = row.get("time_window_end") or "1080"
-
-            if not lat_str or not lon_str:
-                raise ValueError("Latitude and Longitude are required")
-
-            lat = float(lat_str)
-            lon = float(lon_str)
-            weight = float(weight_str)
-
-            if weight <= 0:
-                raise ValueError("Package weight must be greater than 0")
-            if not (-90.0 <= lat <= 90.0) or not (-180.0 <= lon <= 180.0):
-                raise ValueError("Coordinates are out of valid range")
-
-            tw_start = int(tw_s_str)
-            tw_end = int(tw_e_str)
-            if tw_end < tw_start:
-                raise ValueError("time_window_end must be >= time_window_start")
-
-            code = row.get("order_id") or row.get("order_code") or f"IMP-{row_idx:04d}-{int(datetime.utcnow().timestamp())}"
-            # Ensure unique code
-            if db.query(Order).filter(Order.order_code == code).first():
-                code = f"IMP-{row_idx:04d}-{int(datetime.utcnow().timestamp())}"
-
-            ord_obj = Order(
-                order_code=code,
-                warehouse_id=warehouse_id,
-                customer_name=cust_name,
-                address=address,
-                latitude=lat,
-                longitude=lon,
-                package_weight=weight,
-                priority=prio if prio in ("LOW", "NORMAL", "HIGH", "URGENT") else "NORMAL",
-                time_window_start=tw_start,
-                time_window_end=tw_end,
-                status="PENDING"
-            )
-            db.add(ord_obj)
-            created_orders.append(ord_obj)
-            valid_count += 1
-        except Exception as e:
-            invalid_count += 1
-            errors.append(f"Row {row_idx}: {str(e)}")
-
-    db.commit()
-    for o in created_orders:
-        db.refresh(o)
-
-    return OrderImportResponse(
-        total_rows=total_rows,
-        valid_count=valid_count,
-        invalid_count=invalid_count,
-        imported_orders=created_orders,
-        errors=errors
-    )
-
-@router.get("/orders/export")
-def export_orders_csv(db: Session = Depends(get_db)):
-    orders = db.query(Order).all()
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow([
-        "order_id", "order_code", "customer_name", "address",
-        "latitude", "longitude", "package_weight", "priority",
-        "time_window_start", "time_window_end", "status", "assigned_vehicle_id"
-    ])
-    for o in orders:
-        writer.writerow([
-            o.id, o.order_code, o.customer_name, o.address,
-            o.latitude, o.longitude, o.package_weight, o.priority,
-            o.time_window_start, o.time_window_end, o.status, o.assigned_vehicle_id
-        ])
-
-    return Response(
-        content=output.getvalue(),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=orders_export.csv"}
-    )
 
 # -------------------------------------------------------------
 # Vehicles CRUD & Telemetry
@@ -436,19 +640,39 @@ async def update_vehicle_location(
 # -------------------------------------------------------------
 @router.post("/geocode", response_model=GeocodeResponse)
 def geocode_address(req: GeocodeRequest):
-    res = routing_service.geocode(req.address)
-    return GeocodeResponse(**res)
+    res = geocoding_service.geocode(req.address, area=req.area, pincode=req.pincode)
+    return GeocodeResponse(
+        address=req.address,
+        area=req.area,
+        pincode=req.pincode,
+        latitude=res.get("latitude"),
+        longitude=res.get("longitude"),
+        display_name=res.get("display_name"),
+        status=res.get("status", "FAILED"),
+        found=res.get("found", False),
+        error=res.get("error")
+    )
 
 # -------------------------------------------------------------
 # Optimization Analysis & Execution
 # -------------------------------------------------------------
 @router.post("/optimization/analyze", response_model=OptimizationAnalyzeResponse)
-def analyze_optimization_problem(req: OptimizationAnalyzeRequest, db: Session = Depends(get_db)):
+def analyze_optimization_problem(req: Optional[OptimizationAnalyzeRequest] = None, db: Session = Depends(get_db)):
+    if req is None:
+        req = OptimizationAnalyzeRequest()
+
     # Fetch orders to optimize
     if req.order_ids:
-        orders_db = db.query(Order).filter(Order.id.in_(req.order_ids)).all()
+        all_orders = db.query(Order).filter(Order.id.in_(req.order_ids)).all()
     else:
-        orders_db = db.query(Order).filter(Order.status == "PENDING").all()
+        all_orders = db.query(Order).filter(Order.status == "PENDING").all()
+
+    # Exclude orders that could not be geocoded
+    orders_db = [
+        o for o in all_orders
+        if o.latitude is not None and o.longitude is not None and o.geocoding_status != "FAILED"
+    ]
+    unlocated_count = len(all_orders) - len(orders_db)
 
     # Fetch available vehicles
     if req.vehicle_ids:
@@ -492,11 +716,17 @@ def analyze_optimization_problem(req: OptimizationAnalyzeRequest, db: Session = 
 
     if len(orders_db) == 0:
         is_feasible = False
-        feasibility_notes.append("No pending delivery orders available.")
+        if unlocated_count > 0:
+            feasibility_notes.append(f"{unlocated_count} order(s) require valid address geocoding before optimization.")
+        else:
+            feasibility_notes.append("No pending delivery orders available.")
 
     if len(vehicles_db) == 0:
         is_feasible = False
         feasibility_notes.append("No available vehicles in fleet.")
+
+    if unlocated_count > 0:
+        feasibility_notes.append(f"{unlocated_count} order(s) excluded from routing due to unlocated addresses.")
 
     if complexity.total_package_weight > complexity.total_capacity:
         is_feasible = False
@@ -506,7 +736,7 @@ def analyze_optimization_problem(req: OptimizationAnalyzeRequest, db: Session = 
         feasibility_notes.append(f"Capacity check passed: {complexity.total_package_weight} kg demand across {complexity.total_capacity} kg capacity.")
 
     if is_feasible:
-        feasibility_notes.append("Coordinates verified. Time windows verified. Ready for route optimization.")
+        feasibility_notes.append(f"Coordinates verified for {len(orders_db)} orders. Time windows verified. Ready for route optimization.")
 
     return OptimizationAnalyzeResponse(
         complexity=complexity,
@@ -519,11 +749,22 @@ def analyze_optimization_problem(req: OptimizationAnalyzeRequest, db: Session = 
 async def run_optimization(req: OptimizationRunRequest, db: Session = Depends(get_db)):
     # 1. Fetch Orders
     if req.order_ids:
-        orders_db = db.query(Order).filter(Order.id.in_(req.order_ids)).all()
+        all_orders = db.query(Order).filter(Order.id.in_(req.order_ids)).all()
     else:
-        orders_db = db.query(Order).filter(Order.status == "PENDING").all()
+        all_orders = db.query(Order).filter(Order.status == "PENDING").all()
+
+    # Exclude orders with missing coordinates or failed geocoding
+    orders_db = [
+        o for o in all_orders
+        if o.latitude is not None and o.longitude is not None and o.geocoding_status != "FAILED"
+    ]
 
     if not orders_db:
+        if len(all_orders) > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot optimize: {len(all_orders)} pending order(s) could not be geocoded. Please verify addresses."
+            )
         raise HTTPException(status_code=400, detail="No orders found to optimize.")
 
     # 2. Fetch Vehicles
