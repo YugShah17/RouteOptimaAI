@@ -182,13 +182,15 @@ class RoutingService:
         except Exception as e:
             logger.warning(f"Geocoding service unavailable: {e}")
 
-        # Fallback to Pune center area if geocoding fails
+        # Strict failure: never invent coordinates. Returning the Pune city
+        # centre here could silently mis-place a customer, so report failure
+        # with null coordinates and let the caller decide how to handle it.
         return {
             "found": False,
             "address": address,
-            "latitude": 18.5204,
-            "longitude": 73.8567,
-            "display_name": f"Coordinates not resolved for: {address}. Defaulted to Pune Center."
+            "latitude": None,
+            "longitude": None,
+            "display_name": None
         }
 
 routing_service = RoutingService()

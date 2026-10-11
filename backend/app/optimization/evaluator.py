@@ -166,8 +166,11 @@ class RouteEvaluator:
         route_evaluations = []
         vehicles_used = 0
 
-        # Check coverage
+        # Check coverage. `assigned_orders` records unique orders while
+        # `total_visits` counts every stop so duplicate assignments across
+        # routes can be detected (an order must be served exactly once).
         assigned_orders = set()
+        total_visits = 0
         for v_idx, route in enumerate(routes):
             if v_idx < len(vehicles):
                 cap = vehicles[v_idx].get("max_capacity", 100.0)
@@ -188,10 +191,14 @@ class RouteEvaluator:
                 total_capacity_violations += evaluation["capacity_violation"]
                 for o_idx in route:
                     assigned_orders.add(o_idx)
+                    total_visits += 1
 
         unassigned_count = len(orders) - len(assigned_orders)
+        duplicate_count = total_visits - len(assigned_orders)
         if unassigned_count > 0:
             total_cost += unassigned_count * 5000.0  # Heavy penalty for unassigned orders
+        if duplicate_count > 0:
+            total_cost += duplicate_count * 5000.0  # Heavy penalty for duplicated orders
 
         return {
             "total_distance": round(total_distance, 3),
@@ -201,6 +208,11 @@ class RouteEvaluator:
             "total_capacity_violations": round(total_capacity_violations, 2),
             "vehicles_used": vehicles_used,
             "unassigned_count": unassigned_count,
+            "duplicate_count": duplicate_count,
             "route_evaluations": route_evaluations,
-            "is_feasible": (total_capacity_violations == 0 and unassigned_count == 0)
+            "is_feasible": (
+                total_capacity_violations == 0
+                and unassigned_count == 0
+                and duplicate_count == 0
+            )
         }

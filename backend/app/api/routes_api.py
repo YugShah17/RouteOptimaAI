@@ -1033,7 +1033,10 @@ async def run_optimization(req: OptimizationRunRequest, db: Session = Depends(ge
         routes=created_routes_res,
         validation_status={
             "capacity_valid": opt_metrics["total_capacity_violations"] == 0,
-            "coverage_valid": opt_metrics["unassigned_count"] == 0,
+            "coverage_valid": (
+                opt_metrics["unassigned_count"] == 0
+                and opt_metrics.get("duplicate_count", 0) == 0
+            ),
             "late_orders": opt_metrics["total_late"],
             "all_depot_returns_valid": True
         }

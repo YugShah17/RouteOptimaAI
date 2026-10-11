@@ -26,17 +26,21 @@ class HybridOptimizer:
         progress_callback: Optional[Callable[[int, float], None]] = None
     ) -> Dict[str, Any]:
         start_time = time.time()
+        total_budget = max(0.5, float(max_time_seconds))
 
-        # Phase 1: Genetic Algorithm (80% time budget)
-        ga_time_budget = max(5.0, max_time_seconds * 0.8)
+        # Phase 1: Genetic Algorithm (80% of the total budget). The budget is
+        # never inflated above the caller's time limit.
+        ga_time_budget = max(0.2, total_budget * 0.8)
         ga_result = self.genetic.solve(
             orders, vehicles, dist_matrix, time_matrix, depot_idx,
             max_time_seconds=ga_time_budget,
             progress_callback=progress_callback
         )
 
-        # Phase 2: Local Search Refinement on GA's best routes
-        remaining_time = max(2.0, max_time_seconds - (time.time() - start_time))
+        # Phase 2: Local Search Refinement on GA's best routes, using whatever
+        # time is actually left (never more than the original call budget).
+        elapsed = time.time() - start_time
+        remaining_time = max(0.1, total_budget - elapsed)
         ls_result = self.local_search.solve(
             orders, vehicles, dist_matrix, time_matrix, depot_idx,
             initial_routes=ga_result["routes"],

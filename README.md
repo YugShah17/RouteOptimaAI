@@ -110,7 +110,7 @@ Open your browser at [http://localhost:5173](http://localhost:5173).
 ```bash
 python -m pytest -v
 ```
-*All 11 test suites pass covering Greedy, 2-Opt, Genetic, Evaluator, Complexity Analyzer, and API endpoints.*
+*All 18 tests pass covering Greedy, 2-Opt, Genetic, Evaluator, Complexity Analyzer, geocoding, and API endpoints.*
 
 ### Run Benchmark Experiments:
 ```bash
@@ -160,12 +160,13 @@ PORT=8000
 
 ## 📚 Project Documentation
 
-- [`docs/architecture.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/architecture.md) — System architecture, modular monolith design.
-- [`docs/optimization.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/optimization.md) — Detailed DAA analysis, mathematical formulations, Big-O vs measured runtimes.
-- [`docs/ml_pipeline.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/ml_pipeline.md) — Feature engineering, training methodology, evaluation metrics.
-- [`docs/database.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/database.md) — Schema, entity relationships, and indexes.
-- [`docs/api.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/api.md) — Complete REST endpoints and WebSocket protocols.
-- [`docs/deployment.md`](file:///c:/Users/Pcm/OneDrive/Desktop/DAAA/docs/deployment.md) — Operations guide and optional Docker setup.
+- [`PROJECT_GUIDE.md`](PROJECT_GUIDE.md) — How to use the project and how the work was split across the team.
+- [`docs/architecture.md`](docs/architecture.md) — System architecture, modular monolith design.
+- [`docs/optimization.md`](docs/optimization.md) — Detailed DAA analysis, mathematical formulations, Big-O vs measured runtimes.
+- [`docs/ml_pipeline.md`](docs/ml_pipeline.md) — Feature engineering, training methodology, evaluation metrics.
+- [`docs/database.md`](docs/database.md) — Schema, entity relationships, and indexes.
+- [`docs/api.md`](docs/api.md) — Complete REST endpoints and WebSocket protocols.
+- [`docs/deployment.md`](docs/deployment.md) — Operations guide and optional Docker setup.
 
 ---
 

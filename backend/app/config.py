@@ -31,6 +31,10 @@ class Settings:
     SIMULATION_SPEED: float = float(os.getenv("SIMULATION_SPEED", "1.0"))
     SIMULATION_API_KEY: str = os.getenv("SIMULATION_API_KEY", "dev-telemetry-key-2026")
 
+    # CORS: comma-separated list of allowed origins. "*" allows any origin
+    # (development only); set explicit origins before deploying.
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "*")
+
     # ML Model Path
     ML_MODEL_PATH: Path = BASE_DIR / "backend" / "ml" / "model.joblib"
     ML_METRICS_PATH: Path = BASE_DIR / "backend" / "ml" / "metrics.json"

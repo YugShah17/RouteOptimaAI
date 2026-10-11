@@ -39,32 +39,36 @@ class GeneticOptimizer:
     ) -> List[List[int]]:
         """
         Decodes a permutation of order indices into vehicle routes based on vehicle capacities.
+
+        Every order is placed on the *least loaded* vehicle that still has room
+        for it, considering the whole fleet instead of only moving forward. This
+        lets the decoder come back to an earlier vehicle that still has spare
+        capacity. Only when no vehicle can fit the order is the least loaded
+        vehicle overloaded as a fallback so that no order is dropped.
         """
         num_vehicles = len(vehicles)
         routes: List[List[int]] = [[] for _ in range(num_vehicles)]
         if not chromosome or num_vehicles == 0:
             return routes
 
-        v_idx = 0
-        current_load = 0.0
-        v_cap = vehicles[v_idx].get("max_capacity", 100.0)
+        loads = [0.0] * num_vehicles
+        caps = [vehicles[v].get("max_capacity", 100.0) for v in range(num_vehicles)]
 
         for o_idx in chromosome:
             weight = orders[o_idx].get("package_weight", 0.0)
-            if current_load + weight <= v_cap:
-                routes[v_idx].append(o_idx)
-                current_load += weight
+
+            # Vehicles that can still accommodate this order.
+            fit_vehicles = [v for v in range(num_vehicles) if loads[v] + weight <= caps[v]]
+            if fit_vehicles:
+                # Balance the load: use the emptiest vehicle that still fits,
+                # so no vehicle is left carrying avoidable spare capacity.
+                v_idx = min(fit_vehicles, key=lambda v: loads[v])
             else:
-                # Try next vehicle
-                if v_idx + 1 < num_vehicles:
-                    v_idx += 1
-                    routes[v_idx].append(o_idx)
-                    current_load = weight
-                    v_cap = vehicles[v_idx].get("max_capacity", 100.0)
-                else:
-                    # All vehicles at capacity, assign to the vehicle with smallest load
-                    min_v = min(range(num_vehicles), key=lambda v: sum(orders[i].get("package_weight", 0.0) for i in routes[v]))
-                    routes[min_v].append(o_idx)
+                # No feasible vehicle, overload the least loaded one as fallback.
+                v_idx = min(range(num_vehicles), key=lambda v: loads[v])
+
+            routes[v_idx].append(o_idx)
+            loads[v_idx] += weight
 
         return routes
 
@@ -157,21 +161,28 @@ class GeneticOptimizer:
             random.shuffle(perm)
             population.append(perm)
 
-        def evaluate_ind(chrom: List[int]) -> Tuple[float, List[List[int]], Dict[str, Any]]:
+        def deadline_reached() -> bool:
+            return (time.time() - start_time) > max_time_seconds
+
+        def evaluate_ind(chrom: List[int]) -> Tuple[List[int], float, List[List[int]], Dict[str, Any]]:
             rts = self._decode_chromosome(chrom, orders, vehicles)
             ev = self.evaluator.evaluate_solution(rts, orders, vehicles, dist_matrix, time_matrix, depot_idx)
             fitness = 1.0 / (ev["total_cost"] + 1e-4)
-            return fitness, rts, ev
+            return chrom, fitness, rts, ev
 
-        # Initial evaluation
-        scored_pop = [evaluate_ind(ind) for ind in population]
-        best_fitness, best_routes, best_metrics = max(scored_pop, key=lambda x: x[0])
-        best_chromosome = population[scored_pop.index((best_fitness, best_routes, best_metrics))]
+        # Initial evaluation (stop early if the deadline passes, but always
+        # score at least one individual so we have a usable solution).
+        scored_pop = []
+        for chrom in population:
+            if scored_pop and deadline_reached():
+                break
+            scored_pop.append(evaluate_ind(chrom))
+
+        best_chrom, best_fitness, best_routes, best_metrics = max(scored_pop, key=lambda x: x[1])
 
         # Evolution loop
         for gen in range(self.generations):
-            elapsed = time.time() - start_time
-            if elapsed > max_time_seconds:
+            if deadline_reached():
                 break
 
             if progress_callback:
@@ -179,23 +190,22 @@ class GeneticOptimizer:
                 progress_callback(pct, best_metrics["total_distance"])
 
             # Sort by fitness descending
-            sorted_indices = sorted(range(len(population)), key=lambda i: scored_pop[i][0], reverse=True)
-            new_population = []
+            sorted_scored = sorted(scored_pop, key=lambda x: x[1], reverse=True)
 
-            # Elitism: preserve top individuals
-            for e in range(min(self.elitism_count, len(population))):
-                new_population.append(population[sorted_indices[e]])
+            # Elitism: preserve top individuals (already scored, no re-evaluation)
+            new_scored = list(sorted_scored[:self.elitism_count])
 
             # Breed new individuals
-            while len(new_population) < self.population_size:
-                # Tournament selection
-                def tournament_select():
-                    candidates = random.sample(range(len(population)), self.tournament_size)
-                    best_c = max(candidates, key=lambda c: scored_pop[c][0])
-                    return population[best_c]
+            while len(new_scored) < self.population_size:
+                if deadline_reached():
+                    break
 
-                p1 = tournament_select()
-                p2 = tournament_select()
+                def tournament_select():
+                    candidates = random.sample(range(len(scored_pop)), min(self.tournament_size, len(scored_pop)))
+                    return max(candidates, key=lambda c: scored_pop[c][1])
+
+                p1 = scored_pop[tournament_select()][0]
+                p2 = scored_pop[tournament_select()][0]
 
                 if random.random() < self.crossover_rate:
                     c1, c2 = self._order_crossover(p1, p2)
@@ -207,19 +217,18 @@ class GeneticOptimizer:
                 if random.random() < self.mutation_rate:
                     c2 = self._mutate(c2)
 
-                new_population.append(c1)
-                if len(new_population) < self.population_size:
-                    new_population.append(c2)
+                for child in (c1, c2):
+                    if len(new_scored) >= self.population_size or deadline_reached():
+                        break
+                    new_scored.append(evaluate_ind(child))
 
-            population = new_population
-            scored_pop = [evaluate_ind(ind) for ind in population]
-            gen_best_fitness, gen_best_routes, gen_best_metrics = max(scored_pop, key=lambda x: x[0])
+            if not new_scored:
+                break
 
-            if gen_best_fitness > best_fitness:
-                best_fitness = gen_best_fitness
-                best_routes = gen_best_routes
-                best_metrics = gen_best_metrics
-                best_chromosome = population[scored_pop.index((gen_best_fitness, gen_best_routes, gen_best_metrics))]
+            scored_pop = new_scored
+            gen_best = max(scored_pop, key=lambda x: x[1])
+            if gen_best[1] > best_fitness:
+                best_chrom, best_fitness, best_routes, best_metrics = gen_best
 
         runtime = round(time.time() - start_time, 4)
 

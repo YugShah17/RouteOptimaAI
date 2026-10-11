@@ -1,5 +1,7 @@
-const API_BASE = "http://localhost:8000/api";
-const WS_BASE = "ws://localhost:8000/ws/live";
+// API endpoints are configurable at build time via Vite env vars, so the
+// dashboard can point at a non-localhost backend in deployment.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const WS_BASE = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:8000/ws/live";
 
 export const api = {
   // Health
