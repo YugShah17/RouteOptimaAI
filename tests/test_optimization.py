@@ -54,6 +54,25 @@ def test_local_search_optimizer(sample_problem):
     assert res["metrics"]["is_feasible"] is True
     assert res["metrics"]["total_distance"] > 0
 
+def test_two_opt_route_length_two():
+    evaluator = RouteEvaluator()
+    solver = LocalSearchOptimizer(evaluator)
+    orders = [
+        {"id": 1, "loc_idx": 1, "package_weight": 10.0, "priority": "NORMAL"},
+        {"id": 2, "loc_idx": 2, "package_weight": 10.0, "priority": "NORMAL"},
+    ]
+    # Asymmetric: Depot -> 1 -> 2 -> Depot is 10 + 5 + 100 = 115
+    # Reversing: Depot -> 2 -> 1 -> Depot is 1 + 5 + 10 = 16
+    dist_matrix = [
+        [0.0, 10.0, 1.0],
+        [10.0, 0.0, 5.0],
+        [100.0, 5.0, 0.0]
+    ]
+    opt_route = solver.two_opt_route([0, 1], orders, dist_matrix, dist_matrix, depot_idx=0, capacity=50.0)
+    assert opt_route == [1, 0]
+    assert solver.two_opt_route([], orders, dist_matrix, dist_matrix, 0, 50.0) == []
+    assert solver.two_opt_route([0], orders, dist_matrix, dist_matrix, 0, 50.0) == [0]
+
 def test_genetic_optimizer(sample_problem):
     orders, vehicles, dist_matrix, time_matrix = sample_problem
     solver = GeneticOptimizer(population_size=15, generations=10)
