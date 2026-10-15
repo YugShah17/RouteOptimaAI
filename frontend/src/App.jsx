@@ -88,20 +88,25 @@ export default function App() {
     { id: 'settings', label: 'Settings & Demo', icon: Settings },
   ];
 
+  const handleNavigate = (pageId) => {
+    setCurrentPage(pageId);
+    setSidebarOpen(false);
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardPage onNavigate={setCurrentPage} />;
+        return <DashboardPage onNavigate={handleNavigate} />;
       case 'pune-map':
-        return <PuneMapPage onNavigate={setCurrentPage} />;
+        return <PuneMapPage onNavigate={handleNavigate} />;
       case 'orders':
-        return <OrdersPage onNavigate={setCurrentPage} />;
+        return <OrdersPage onNavigate={handleNavigate} />;
       case 'create-order':
-        return <CreateOrderPage onNavigate={setCurrentPage} />;
+        return <CreateOrderPage onNavigate={handleNavigate} />;
       case 'vehicles':
         return <VehiclesPage />;
       case 'optimization':
-        return <OptimizationPage onNavigate={setCurrentPage} />;
+        return <OptimizationPage onNavigate={handleNavigate} />;
       case 'tracking':
         return (
           <LiveTrackingPage
@@ -117,73 +122,139 @@ export default function App() {
       case 'settings':
         return <SettingsPage />;
       default:
-        return <DashboardPage onNavigate={setCurrentPage} />;
+        return <DashboardPage onNavigate={handleNavigate} />;
     }
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {/* Mobile Backdrop */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.4)',
+            zIndex: 140,
+            backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <aside
         style={{
           width: '260px',
-          background: 'var(--bg-secondary)',
+          background: 'var(--bg-surface)',
           borderRight: '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
           position: 'sticky',
           top: 0,
           height: '100vh',
-          zIndex: 100,
+          zIndex: 150,
+          transition: 'transform 0.2s ease-in-out',
         }}
+        className={sidebarOpen ? 'sidebar-mobile-open' : 'sidebar-desktop'}
       >
         {/* App Logo */}
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)' }}>
-            <Zap size={22} />
-          </div>
-          <div>
-            <div style={{ fontWeight: '800', fontSize: '1rem', letterSpacing: '-0.02em', color: '#f8fafc' }}>
-              RouteOptima<span style={{ color: '#818cf8' }}>AI</span>
+        <div
+          style={{
+            padding: '20px',
+            borderBottom: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                background: 'var(--accent-primary)',
+                width: '34px',
+                height: '34px',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Truck size={19} />
             </div>
-            <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Complexity-Aware
+            <div>
+              <div style={{ fontWeight: '700', fontSize: '1rem', letterSpacing: '-0.01em', color: 'var(--text-main)' }}>
+                RouteOptima<span style={{ color: 'var(--accent-primary)' }}>AI</span>
+              </div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: '500' }}>
+                Logistics Dispatch
+              </div>
             </div>
           </div>
+
+          {/* Close button for mobile */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'none',
+              padding: '4px',
+            }}
+            className="mobile-close-btn"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Navigation Links */}
-        <nav style={{ padding: '16px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto' }}>
+        <nav
+          style={{
+            padding: '12px 10px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+            overflowY: 'auto',
+          }}
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentPage(item.id)}
+                onClick={() => handleNavigate(item.id)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  borderRadius: '6px',
                   border: 'none',
-                  background: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                  color: isActive ? '#818cf8' : '#94a3b8',
+                  background: isActive ? 'var(--accent-primary-light)' : 'transparent',
+                  color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
                   fontWeight: isActive ? '600' : '500',
                   fontSize: '0.875rem',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'all 0.15s ease',
-                  borderLeft: isActive ? '3px solid #6366f1' : '3px solid transparent',
+                  transition: 'background-color 0.15s ease, color 0.15s ease',
+                  borderLeft: isActive ? '3px solid var(--accent-primary)' : '3px solid transparent',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Icon size={18} />
+                  <Icon size={17} style={{ color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)' }} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span className="badge badge-delivered" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
+                  <span
+                    className="badge badge-delivered"
+                    style={{ fontSize: '0.65rem', padding: '1px 5px', borderRadius: '4px' }}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -193,20 +264,32 @@ export default function App() {
         </nav>
 
         {/* Sidebar Footer with Live WebSocket Status */}
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: '#94a3b8' }}>
+        <div
+          style={{
+            padding: '14px 18px',
+            borderTop: '1px solid var(--border-color)',
+            fontSize: '0.75rem',
+            color: 'var(--text-muted)',
+            background: 'var(--bg-surface-secondary)',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
               <div
                 style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '7px',
+                  height: '7px',
                   borderRadius: '50%',
-                  backgroundColor: wsConnected ? '#10b981' : '#f59e0b',
+                  backgroundColor: wsConnected ? 'var(--color-success)' : 'var(--color-warning)',
                 }}
               />
-              <span>{wsConnected ? 'WebSocket Live' : 'Disconnected'}</span>
+              <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>
+                {wsConnected ? 'System Online' : 'Connecting...'}
+              </span>
             </div>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>v1.0.0</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-faint)' }}>
+              v1.0.0
+            </span>
           </div>
         </div>
       </aside>
@@ -216,39 +299,59 @@ export default function App() {
         {/* Top Header Bar */}
         <header
           style={{
-            height: '64px',
+            height: '56px',
             borderBottom: '1px solid var(--border-color)',
-            background: 'rgba(15, 23, 42, 0.7)',
-            backdropFilter: 'blur(8px)',
+            background: 'var(--bg-surface)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '0 28px',
+            padding: '0 24px',
             position: 'sticky',
             top: 0,
-            zIndex: 90,
+            zIndex: 100,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Current Hub:</span>
-            <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#f8fafc' }}>
-              Pune Central Logistics Depot
-            </span>
+            {/* Hamburger button for mobile/tablet */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'none',
+                padding: '4px',
+                borderRadius: '4px',
+              }}
+              className="mobile-menu-btn"
+              aria-label="Toggle Navigation Menu"
+            >
+              <Menu size={20} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Depot Hub:</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+                Pune Central Logistics Depot
+              </span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {simulationStatus.is_running && (
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '4px 10px',
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '20px',
+                  padding: '4px 9px',
+                  background: 'var(--color-success-bg)',
+                  border: '1px solid var(--color-success-border)',
+                  borderRadius: '4px',
                   fontSize: '0.75rem',
-                  color: '#34d399',
+                  color: 'var(--color-success-text)',
+                  fontWeight: '500',
                   cursor: 'pointer',
                 }}
                 onClick={() => setCurrentPage('tracking')}
@@ -259,17 +362,19 @@ export default function App() {
             )}
 
             <button
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+              className="btn-primary"
+              style={{ padding: '5px 12px', fontSize: '0.8125rem' }}
               onClick={() => setCurrentPage('optimization')}
             >
-              <Zap size={14} /> Quick Optimize
+              <Zap size={14} /> Optimize Routes
             </button>
           </div>
         </header>
 
         {/* Dynamic Page Content */}
-        <div style={{ padding: '28px', flex: 1 }}>{renderPage()}</div>
+        <div style={{ padding: '24px', flex: 1, maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
+          {renderPage()}
+        </div>
       </main>
     </div>
   );

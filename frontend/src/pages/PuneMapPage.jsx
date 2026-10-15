@@ -49,38 +49,60 @@ export default function PuneMapPage({ onNavigate }) {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+      <div
+        className="card"
+        style={{
+          padding: '18px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h1 style={{ fontSize: '1.4rem', fontWeight: '700' }}>Pune Metropolitan Logistics Map</h1>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)' }}>
+              Pune Metropolitan Logistics Map
+            </h1>
             <span className="badge badge-assigned">Maharashtra, India</span>
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '4px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: '2px' }}>
             Interactive geographical map of delivery destinations, fulfillment depots, and vehicle routes across Pune city.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-secondary" onClick={loadData}>
-            <RotateCcw size={16} /> Refresh Map
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn-secondary" onClick={loadData} style={{ fontSize: '0.8125rem', padding: '5px 12px' }}>
+            <RotateCcw size={14} /> Refresh Map
           </button>
-          <button className="btn-primary" onClick={() => onNavigate('optimization')}>
-            <Compass size={16} /> Optimize Routes
+          <button className="btn-primary" onClick={() => onNavigate('optimization')} style={{ fontSize: '0.8125rem', padding: '5px 14px' }}>
+            <Compass size={14} /> Optimize Routes
           </button>
         </div>
       </div>
 
       {/* Filter and Highlights Bar */}
-      <div className="glass-card" style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Filter size={14} /> Filter Markers:
+      <div
+        className="card"
+        style={{
+          padding: '12px 18px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <Filter size={13} /> Filter Markers:
           </span>
 
           <select
             className="form-select"
-            style={{ width: '150px', padding: '4px 8px', fontSize: '0.8rem' }}
+            style={{ width: '140px', padding: '4px 8px', fontSize: '0.8125rem', height: '32px' }}
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -92,7 +114,7 @@ export default function PuneMapPage({ onNavigate }) {
 
           <select
             className="form-select"
-            style={{ width: '150px', padding: '4px 8px', fontSize: '0.8rem' }}
+            style={{ width: '140px', padding: '4px 8px', fontSize: '0.8125rem', height: '32px' }}
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
           >
@@ -103,7 +125,7 @@ export default function PuneMapPage({ onNavigate }) {
           </select>
         </div>
 
-        <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', gap: '14px' }}>
+        <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'flex', gap: '14px' }}>
           <span>🏢 <strong>{warehouses.length}</strong> Depots</span>
           <span>📦 <strong>{filteredOrders.length}</strong> Deliveries</span>
           <span>🚚 <strong>{routes.length}</strong> Active Routes</span>
@@ -111,9 +133,9 @@ export default function PuneMapPage({ onNavigate }) {
       </div>
 
       {/* Full-Screen Map Container */}
-      <div className="glass-card" style={{ padding: '20px' }}>
+      <div className="card" style={{ padding: '16px' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
             Loading Pune map coordinates...
           </div>
         ) : (
@@ -128,31 +150,31 @@ export default function PuneMapPage({ onNavigate }) {
       </div>
 
       {/* Pune Hubs Legend & Directory */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-        <div className="glass-card" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366f1', fontWeight: '700', fontSize: '0.9rem' }}>
-            <Building2 size={18} /> Central Pune Depot (Shivajinagar)
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: '600', fontSize: '0.875rem' }}>
+            <Building2 size={16} /> Central Pune Depot (Shivajinagar)
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '6px' }}>
+          <div style={{ fontSize: '0.78125rem', color: 'var(--text-muted)', marginTop: '5px', lineHeight: '1.4' }}>
             Goods Terminal, Shivajinagar (18.5308, 73.8475). Serves West and Central Pune: Kothrud, Deccan, Baner, Aundh, and Wakad.
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: '700', fontSize: '0.9rem' }}>
-            <Building2 size={18} /> East Pune Fulfillment Hub (Hadapsar)
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-success)', fontWeight: '600', fontSize: '0.875rem' }}>
+            <Building2 size={16} /> East Pune Fulfillment Hub (Hadapsar)
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '6px' }}>
+          <div style={{ fontSize: '0.78125rem', color: 'var(--text-muted)', marginTop: '5px', lineHeight: '1.4' }}>
             Industrial Estate, Hadapsar (18.5089, 73.9260). Serves East and IT corridors: Magarpatta, Viman Nagar, Kharadi EON, and Camp.
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#06b6d4', fontWeight: '700', fontSize: '0.9rem' }}>
-            <Truck size={18} /> Hinjewadi & Wakad Express Sector
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0284c7', fontWeight: '600', fontSize: '0.875rem' }}>
+            <Truck size={16} /> Hinjewadi & Wakad Express Sector
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '6px' }}>
-            Rajiv Gandhi Infotech Park (18.5987, 73.7688). High priority corporate and express parcel distribution corridor.
+          <div style={{ fontSize: '0.78125rem', color: 'var(--text-muted)', marginTop: '5px', lineHeight: '1.4' }}>
+            Rajiv Gandhi Infotech Park (18.5987, 73.7688). High-priority corporate and express parcel distribution corridor.
           </div>
         </div>
       </div>

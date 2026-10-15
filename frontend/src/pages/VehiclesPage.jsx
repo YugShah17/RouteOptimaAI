@@ -7,7 +7,8 @@ import {
   Gauge,
   MapPin,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 
 export default function VehiclesPage() {
@@ -61,31 +62,51 @@ export default function VehiclesPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+      <div
+        className="card"
+        style={{
+          padding: '18px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
         <div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: '700' }}>Fleet Management & Vehicle Telemetry</h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '2px' }}>
-            Monitor delivery vans, carrying capacities, payload utilization, and GPS locations.
+          <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)' }}>
+            Vehicle Fleet Management
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: '2px' }}>
+            Monitor delivery vans, carrying capacities, payload utilization, and base hubs.
           </p>
         </div>
-        <button className="btn-primary" onClick={() => setShowAddModal(true)}>
-          <Plus size={16} /> Add Vehicle
+        <button
+          className="btn-primary"
+          style={{ fontSize: '0.8125rem', padding: '5px 13px' }}
+          onClick={() => setShowAddModal(true)}
+        >
+          <Plus size={15} /> Add Vehicle
         </button>
       </div>
 
       {/* Grid of Vehicles */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading fleet...</div>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          Loading fleet...
+        </div>
       ) : vehicles.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '50px', color: '#64748b' }}>
-          <Truck size={40} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
-          <div style={{ fontSize: '1rem', fontWeight: '600' }}>No vehicles registered</div>
-          <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Add a new vehicle or load the Pune demo data in Settings.</div>
+        <div className="card" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+          <Truck size={36} style={{ margin: '0 auto 10px auto', opacity: 0.4 }} />
+          <div style={{ fontSize: '0.9375rem', fontWeight: '600', color: 'var(--text-main)' }}>No vehicles registered</div>
+          <div style={{ fontSize: '0.8125rem', marginTop: '2px' }}>
+            Add a new vehicle or load Pune demo data in Settings.
+          </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
           {vehicles.map((v) => {
             const util = Math.round((v.current_load / v.max_capacity) * 100) || 0;
             let badgeClass = 'badge-available';
@@ -94,48 +115,87 @@ export default function VehiclesPage() {
             if (v.status === 'MAINTENANCE') badgeClass = 'badge-failed';
 
             return (
-              <div key={v.id} className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div
+                key={v.id}
+                className="card"
+                style={{
+                  padding: '16px 18px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <div style={{ fontWeight: '700', fontSize: '1.05rem', color: '#f8fafc' }}>{v.vehicle_number}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>{v.vehicle_type}</div>
+                    <div style={{ fontWeight: '600', fontSize: '0.9375rem', color: 'var(--text-main)' }}>
+                      {v.vehicle_number}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1px' }}>
+                      {v.vehicle_type}
+                    </div>
                   </div>
                   <span className={`badge ${badgeClass}`}>{v.status}</span>
                 </div>
 
                 {/* Capacity Progress Bar */}
-                <div style={{ background: '#0b1329', padding: '12px', borderRadius: '8px', border: '1px solid #1e293b' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
-                    <span style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Gauge size={14} /> Payload Utilization
+                <div
+                  style={{
+                    background: 'var(--bg-surface-secondary)',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '5px' }}>
+                    <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Gauge size={13} /> Payload Utilization
                     </span>
-                    <span style={{ fontWeight: '700', color: util > 85 ? '#f59e0b' : '#38bdf8' }}>
+                    <span
+                      style={{
+                        fontWeight: '600',
+                        color: util > 85 ? 'var(--color-warning)' : 'var(--text-main)',
+                      }}
+                    >
                       {v.current_load} / {v.max_capacity} kg ({util}%)
                     </span>
                   </div>
-                  <div style={{ height: '6px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ height: '5px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${Math.min(100, util)}%`,
                         height: '100%',
-                        background: util > 90 ? '#ef4444' : util > 70 ? '#f59e0b' : '#10b981',
-                        transition: 'width 0.3s'
+                        background: util > 90 ? 'var(--color-danger)' : util > 70 ? 'var(--color-warning)' : 'var(--color-success)',
+                        transition: 'width 0.3s ease',
                       }}
                     />
                   </div>
                 </div>
 
                 {/* Coordinates & Assigned Route */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b', borderTop: '1px solid #233554', paddingTop: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    borderTop: '1px solid var(--border-subtle)',
+                    paddingTop: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                     <MapPin size={12} />
-                    {v.current_latitude.toFixed(4)}, {v.current_longitude.toFixed(4)}
+                    <span>
+                      {v.current_latitude?.toFixed(4)}, {v.current_longitude?.toFixed(4)}
+                    </span>
                   </div>
                   <div>
                     {v.assigned_route_id ? (
-                      <span style={{ color: '#6366f1', fontWeight: '600' }}>Route #{v.assigned_route_id}</span>
+                      <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>
+                        Route #{v.assigned_route_id}
+                      </span>
                     ) : (
-                      'No Active Route'
+                      <span style={{ color: 'var(--text-faint)' }}>No active route</span>
                     )}
                   </div>
                 </div>
@@ -147,12 +207,47 @@ export default function VehiclesPage() {
 
       {/* Add Vehicle Modal */}
       {showAddModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px' }}>
-          <div className="glass-card" style={{ maxWidth: '450px', width: '100%', padding: '24px', background: '#0d1527' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px' }}>Add New Fleet Vehicle</h2>
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.4)',
+            backdropFilter: 'blur(2px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '16px',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: '440px',
+              width: '100%',
+              padding: '24px',
+              background: '#ffffff',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-main)' }}>
+                Add New Fleet Vehicle
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Vehicle Number / Plate *</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                  Vehicle Plate / Number *
+                </label>
                 <input
                   type="text"
                   required
@@ -164,7 +259,9 @@ export default function VehiclesPage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Vehicle Type</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                  Vehicle Type
+                </label>
                 <select
                   className="form-select"
                   value={formData.vehicle_type}
@@ -178,7 +275,9 @@ export default function VehiclesPage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Maximum Capacity (kg) *</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                  Maximum Capacity (kg) *
+                </label>
                 <input
                   type="number"
                   required
@@ -191,7 +290,9 @@ export default function VehiclesPage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>Base Depot / Operating Hub</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                  Base Operating Hub
+                </label>
                 <select
                   className="form-select"
                   onChange={(e) => {
@@ -211,8 +312,13 @@ export default function VehiclesPage() {
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowAddModal(false)}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ flex: 1 }}
+                  onClick={() => setShowAddModal(false)}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>

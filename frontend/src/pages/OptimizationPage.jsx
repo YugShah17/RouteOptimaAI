@@ -13,7 +13,9 @@ import {
   Compass,
   Clock,
   Layers,
-  Info
+  Info,
+  Check,
+  ChevronRight
 } from 'lucide-react';
 
 export default function OptimizationPage({ onNavigate }) {
@@ -85,115 +87,176 @@ export default function OptimizationPage({ onNavigate }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Page Header */}
-      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+      <div
+        className="card"
+        style={{
+          padding: '18px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
         <div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: '700' }}>AI-Driven Route Optimization Engine</h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '2px' }}>
-            Machine learning complexity estimation selects the optimal metaheuristic to minimize total fleet distance.
+          <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)' }}>
+            Route Optimization Engine
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginTop: '2px' }}>
+            Machine learning complexity estimation selects the optimal algorithm to minimize fleet distance and delays.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-secondary" onClick={runAnalysis} disabled={analyzing || optimizing}>
-            <RotateCcw size={16} /> Re-Analyze Problem
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            className="btn-secondary"
+            onClick={runAnalysis}
+            disabled={analyzing || optimizing}
+            style={{ fontSize: '0.8125rem', padding: '5px 12px' }}
+          >
+            <RotateCcw size={14} /> Re-Analyze
           </button>
           <button
             className="btn-primary"
             onClick={handleRunOptimization}
             disabled={optimizing || (analysis && !analysis.feasible)}
+            style={{ fontSize: '0.8125rem', padding: '5px 14px' }}
           >
-            <Zap size={16} /> {optimizing ? 'Optimizing...' : 'Run Optimization'}
+            <Zap size={14} /> {optimizing ? 'Optimizing...' : 'Start Optimization'}
           </button>
         </div>
       </div>
 
       {error && (
-        <div style={{ padding: '14px', background: 'rgba(244, 63, 94, 0.15)', border: '1px solid #f43f5e', borderRadius: '8px', color: '#fb7185', fontSize: '0.875rem' }}>
-          <AlertTriangle size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+        <div
+          style={{
+            padding: '12px 16px',
+            background: 'var(--color-danger-bg)',
+            border: '1px solid var(--color-danger-border)',
+            borderRadius: '6px',
+            color: 'var(--color-danger-text)',
+            fontSize: '0.8125rem',
+          }}
+        >
+          <AlertTriangle size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
           {error}
         </div>
       )}
 
-      {/* Problem Complexity & ML Intelligence Cards */}
+      {/* Step-by-Step Workflow: Analysis, ML Recommendation & Objective Weights */}
       {analysis && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-          {/* Complexity Card */}
-          <div className="glass-card" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600' }}>Problem Complexity</span>
-              <span
-                className={`badge ${
-                  analysis.complexity.complexity_level === 'HIGH'
-                    ? 'badge-complexity-high'
-                    : analysis.complexity.complexity_level === 'MEDIUM'
-                    ? 'badge-complexity-med'
-                    : 'badge-complexity-low'
-                }`}
-              >
-                {analysis.complexity.complexity_level} ({analysis.complexity.complexity_score} / 100)
-              </span>
-            </div>
+          {/* Step 1 & 2: Complexity Analysis */}
+          <div className="card" style={{ padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                  1. Problem Complexity Analysis
+                </span>
+                <span
+                  className={`badge ${
+                    analysis.complexity.complexity_level === 'HIGH'
+                      ? 'badge-complexity-high'
+                      : analysis.complexity.complexity_level === 'MEDIUM'
+                      ? 'badge-complexity-med'
+                      : 'badge-complexity-low'
+                  }`}
+                >
+                  {analysis.complexity.complexity_level} ({analysis.complexity.complexity_score} / 100)
+                </span>
+              </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.8rem' }}>
-              <div style={{ background: '#0b1329', padding: '10px', borderRadius: '8px' }}>
-                <div style={{ color: '#64748b' }}>Pending Orders</div>
-                <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#f8fafc' }}>{analysis.complexity.number_of_orders}</div>
-              </div>
-              <div style={{ background: '#0b1329', padding: '10px', borderRadius: '8px' }}>
-                <div style={{ color: '#64748b' }}>Available Vehicles</div>
-                <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#f8fafc' }}>{analysis.complexity.number_of_vehicles}</div>
-              </div>
-              <div style={{ background: '#0b1329', padding: '10px', borderRadius: '8px' }}>
-                <div style={{ color: '#64748b' }}>Capacity Demand</div>
-                <div style={{ fontWeight: '600', color: '#cbd5e1' }}>
-                  {analysis.complexity.total_package_weight} / {analysis.complexity.total_capacity} kg
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8125rem' }}>
+                <div style={{ background: 'var(--bg-surface-secondary)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Pending Orders</div>
+                  <div style={{ fontWeight: '700', fontSize: '1.2rem', color: 'var(--text-main)', marginTop: '2px' }}>
+                    {analysis.complexity.number_of_orders}
+                  </div>
                 </div>
-              </div>
-              <div style={{ background: '#0b1329', padding: '10px', borderRadius: '8px' }}>
-                <div style={{ color: '#64748b' }}>Geographical Spread</div>
-                <div style={{ fontWeight: '600', color: '#cbd5e1' }}>{analysis.complexity.geographical_spread_km} km</div>
+                <div style={{ background: 'var(--bg-surface-secondary)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Available Fleet</div>
+                  <div style={{ fontWeight: '700', fontSize: '1.2rem', color: 'var(--text-main)', marginTop: '2px' }}>
+                    {analysis.complexity.number_of_vehicles}
+                  </div>
+                </div>
+                <div style={{ background: 'var(--bg-surface-secondary)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Capacity Demand</div>
+                  <div style={{ fontWeight: '600', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    {analysis.complexity.total_package_weight} / {analysis.complexity.total_capacity} kg
+                  </div>
+                </div>
+                <div style={{ background: 'var(--bg-surface-secondary)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Geographic Spread</div>
+                  <div style={{ fontWeight: '600', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    {analysis.complexity.geographical_spread_km} km
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Feasibility Notes */}
-            <div style={{ marginTop: '14px', borderTop: '1px solid #1e293b', paddingTop: '10px', fontSize: '0.75rem' }}>
+            <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px', fontSize: '0.75rem' }}>
               {analysis.feasibility_notes.map((note, i) => (
-                <div key={i} style={{ color: analysis.feasible ? '#34d399' : '#fb7185', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-                  {analysis.feasible ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />} {note}
+                <div
+                  key={i}
+                  style={{
+                    color: analysis.feasible ? 'var(--color-success-text)' : 'var(--color-danger-text)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    marginBottom: '2px',
+                  }}
+                >
+                  {analysis.feasible ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />} {note}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ML Strategy Recommendation Card */}
-          <div className="glass-card" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Cpu size={16} style={{ color: '#6366f1' }} /> ML Strategy Recommendation
-              </span>
-              <span className="badge badge-assigned" style={{ fontSize: '0.75rem' }}>
-                Confidence {Math.round(analysis.recommendation.confidence * 100)}%
-              </span>
+          {/* Step 3 & 4: ML Recommendation & Algorithm Selection */}
+          <div className="card" style={{ padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Cpu size={15} style={{ color: 'var(--accent-primary)' }} /> 2. ML Strategy Recommendation
+                </span>
+                <span className="badge badge-assigned" style={{ fontSize: '0.6875rem' }}>
+                  Confidence {Math.round(analysis.recommendation.confidence * 100)}%
+                </span>
+              </div>
+
+              <div
+                style={{
+                  background: 'var(--bg-surface-secondary)',
+                  padding: '12px 14px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  marginBottom: '12px',
+                }}
+              >
+                <div style={{ fontSize: '0.71875rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>
+                  ML Predicted Algorithm
+                </div>
+                <div style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--accent-primary)', marginTop: '2px' }}>
+                  {analysis.recommendation.final_strategy}
+                </div>
+                <div style={{ fontSize: '0.78125rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>
+                  {analysis.recommendation.reason}
+                </div>
+              </div>
             </div>
 
-            <div style={{ background: '#0b1329', padding: '14px', borderRadius: '8px', border: '1px solid #233554', marginBottom: '14px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>Recommended Algorithm</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#818cf8', marginTop: '2px' }}>
-                {analysis.recommendation.final_strategy}
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '6px', lineHeight: '1.4' }}>
-                {analysis.recommendation.reason}
-              </div>
-            </div>
-
-            {/* Strategy Selection Controls */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <label style={{ fontSize: '0.8rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>Strategy:</label>
+            {/* Algorithm Override Dropdown */}
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px', fontWeight: '500' }}>
+                Active Execution Algorithm:
+              </label>
               <select
                 className="form-select"
                 value={selectedStrategy || analysis.recommendation.final_strategy}
                 onChange={(e) => setSelectedStrategy(e.target.value)}
+                style={{ height: '36px', fontSize: '0.8125rem' }}
               >
                 <option value="GREEDY">Nearest Neighbor (Greedy)</option>
                 <option value="LOCAL_SEARCH">Local Search (2-Opt Relocation)</option>
@@ -204,77 +267,129 @@ export default function OptimizationPage({ onNavigate }) {
           </div>
 
           {/* Objective Function Configuration */}
-          <div className="glass-card" style={{ padding: '20px' }}>
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sliders size={16} /> Objective Weights & Constraints
+          <div className="card" style={{ padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Sliders size={15} /> 3. Objective Weights & Constraints
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>
+                    Distance Weight
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="form-input"
+                    value={distanceWeight}
+                    onChange={(e) => setDistanceWeight(e.target.value)}
+                    style={{ height: '34px', fontSize: '0.8125rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>
+                    Time Weight
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="form-input"
+                    value={timeWeight}
+                    onChange={(e) => setTimeWeight(e.target.value)}
+                    style={{ height: '34px', fontSize: '0.8125rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>
+                    Late Penalty
+                  </label>
+                  <input
+                    type="number"
+                    step="5"
+                    className="form-input"
+                    value={latePenalty}
+                    onChange={(e) => setLatePenalty(e.target.value)}
+                    style={{ height: '34px', fontSize: '0.8125rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>
+                    Max Time (s)
+                  </label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={maxTimeSeconds}
+                    onChange={(e) => setMaxTimeSeconds(e.target.value)}
+                    style={{ height: '34px', fontSize: '0.8125rem' }}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div>
-                <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>Distance Weight</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  className="form-input"
-                  value={distanceWeight}
-                  onChange={(e) => setDistanceWeight(e.target.value)}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>Time Weight</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  className="form-input"
-                  value={timeWeight}
-                  onChange={(e) => setTimeWeight(e.target.value)}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>Late Delivery Penalty</label>
-                <input
-                  type="number"
-                  step="5"
-                  className="form-input"
-                  value={latePenalty}
-                  onChange={(e) => setLatePenalty(e.target.value)}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>Max Runtime (s)</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={maxTimeSeconds}
-                  onChange={(e) => setMaxTimeSeconds(e.target.value)}
-                />
-              </div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}>
+              Optimizes vehicle capacity constraints and strict customer time windows.
             </div>
           </div>
         </div>
       )}
 
-      {/* Stepper / In-Flight Status Bar */}
+      {/* Stepper / Progress Status Bar */}
       {optimizing && (
-        <div className="glass-card" style={{ padding: '20px', background: '#0e172e' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#818cf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="card" style={{ padding: '18px', background: 'var(--bg-surface)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <span style={{ fontWeight: '600', fontSize: '0.875rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="pulse-dot"></span> Optimization in progress...
             </span>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Executing {selectedStrategy || 'Adaptive Strategy'}</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              Executing {selectedStrategy || 'Adaptive Strategy'}
+            </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', fontSize: '0.75rem', textAlign: 'center' }}>
-            <div style={{ padding: '8px', background: progressStage >= 1 ? '#1e293b' : '#0b1329', color: progressStage >= 1 ? '#38bdf8' : '#64748b', borderRadius: '6px' }}>
-              1. Matrix Formulation ✓
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', fontSize: '0.75rem', textAlign: 'center' }}>
+            <div
+              style={{
+                padding: '6px 8px',
+                background: progressStage >= 1 ? 'var(--accent-primary-light)' : 'var(--bg-surface-secondary)',
+                color: progressStage >= 1 ? 'var(--accent-primary)' : 'var(--text-faint)',
+                fontWeight: progressStage >= 1 ? '600' : '400',
+                borderRadius: '4px',
+              }}
+            >
+              1. Matrix Formulation
             </div>
-            <div style={{ padding: '8px', background: progressStage >= 2 ? '#1e293b' : '#0b1329', color: progressStage >= 2 ? '#38bdf8' : '#64748b', borderRadius: '6px' }}>
-              2. ML Strategy Dispatch ✓
+            <div
+              style={{
+                padding: '6px 8px',
+                background: progressStage >= 2 ? 'var(--accent-primary-light)' : 'var(--bg-surface-secondary)',
+                color: progressStage >= 2 ? 'var(--accent-primary)' : 'var(--text-faint)',
+                fontWeight: progressStage >= 2 ? '600' : '400',
+                borderRadius: '4px',
+              }}
+            >
+              2. ML Strategy Dispatch
             </div>
-            <div style={{ padding: '8px', background: progressStage >= 3 ? '#1e293b' : '#0b1329', color: progressStage >= 3 ? '#38bdf8' : '#64748b', borderRadius: '6px' }}>
+            <div
+              style={{
+                padding: '6px 8px',
+                background: progressStage >= 3 ? 'var(--accent-primary-light)' : 'var(--bg-surface-secondary)',
+                color: progressStage >= 3 ? 'var(--accent-primary)' : 'var(--text-faint)',
+                fontWeight: progressStage >= 3 ? '600' : '400',
+                borderRadius: '4px',
+              }}
+            >
               3. Heuristic Search...
             </div>
-            <div style={{ padding: '8px', background: progressStage >= 4 ? '#1e293b' : '#0b1329', color: progressStage >= 4 ? '#10b981' : '#64748b', borderRadius: '6px' }}>
+            <div
+              style={{
+                padding: '6px 8px',
+                background: progressStage >= 4 ? 'var(--color-success-bg)' : 'var(--bg-surface-secondary)',
+                color: progressStage >= 4 ? 'var(--color-success-text)' : 'var(--text-faint)',
+                fontWeight: progressStage >= 4 ? '600' : '400',
+                borderRadius: '4px',
+              }}
+            >
               4. Validation & GeoJSON
             </div>
           </div>
@@ -283,78 +398,122 @@ export default function OptimizationPage({ onNavigate }) {
 
       {/* Before vs After Benchmark Comparison Card */}
       {result && (
-        <div className="glass-card" style={{ padding: '24px', border: '1px solid #4338ca' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="card" style={{ padding: '20px', border: '1px solid var(--accent-primary-border)' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '16px',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}
+          >
             <div>
-              <span className="badge badge-delivered" style={{ marginBottom: '4px' }}>Optimization Complete</span>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Baseline vs Optimized Route Comparison</h2>
+              <span className="badge badge-delivered" style={{ marginBottom: '4px' }}>
+                Optimization Complete
+              </span>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--text-main)' }}>
+                Baseline vs Optimized Route Comparison
+              </h2>
             </div>
-            <button className="btn-primary" onClick={() => onNavigate('tracking')}>
-              <Play size={16} /> Start Live Fleet Simulation
+            <button
+              className="btn-primary"
+              onClick={() => onNavigate('tracking')}
+              style={{ fontSize: '0.8125rem', padding: '6px 14px' }}
+            >
+              <Play size={14} /> Start Fleet Simulation
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '12px', marginBottom: '16px' }}>
             {/* Total Distance Comparison */}
-            <div style={{ background: '#0b1329', padding: '16px', borderRadius: '10px', border: '1px solid #1e293b' }}>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Total Route Distance</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '6px' }}>
-                <span style={{ fontSize: '1.3rem', fontWeight: '700', color: '#10b981' }}>{result.comparison.distance_after_km} km</span>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', textDecoration: 'line-through' }}>{result.comparison.distance_before_km} km</span>
+            <div style={{ background: 'var(--bg-surface-secondary)', padding: '14px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Route Distance</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-success)' }}>
+                  {result.comparison.distance_after_km} km
+                </span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-faint)', textDecoration: 'line-through' }}>
+                  {result.comparison.distance_before_km} km
+                </span>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px', fontWeight: '600' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-success-text)', marginTop: '2px', fontWeight: '600' }}>
                 Saved: {result.comparison.distance_saved_km} km ({result.comparison.pct_improvement}%)
               </div>
             </div>
 
             {/* Vehicles Used */}
-            <div style={{ background: '#0b1329', padding: '16px', borderRadius: '10px', border: '1px solid #1e293b' }}>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Active Vehicles Used</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '6px' }}>
-                <span style={{ fontSize: '1.3rem', fontWeight: '700', color: '#f8fafc' }}>{result.comparison.vehicles_after} Vans</span>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>vs {result.comparison.vehicles_before} baseline</span>
+            <div style={{ background: 'var(--bg-surface-secondary)', padding: '14px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Active Fleet Deployed</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-main)' }}>
+                  {result.comparison.vehicles_after} Vans
+                </span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-faint)' }}>
+                  vs {result.comparison.vehicles_before} baseline
+                </span>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                 Payload consolidation achieved
               </div>
             </div>
 
             {/* Late Orders */}
-            <div style={{ background: '#0b1329', padding: '16px', borderRadius: '10px', border: '1px solid #1e293b' }}>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Late Deliveries</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '6px' }}>
-                <span style={{ fontSize: '1.3rem', fontWeight: '700', color: result.comparison.late_orders_after === 0 ? '#10b981' : '#f59e0b' }}>
+            <div style={{ background: 'var(--bg-surface-secondary)', padding: '14px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Late Deliveries</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+                <span
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: result.comparison.late_orders_after === 0 ? 'var(--color-success)' : 'var(--color-warning)',
+                  }}
+                >
                   {result.comparison.late_orders_after} Orders
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>from {result.comparison.late_orders_before}</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-faint)' }}>
+                  from {result.comparison.late_orders_before}
+                </span>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>
-                Time window violations penalized
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                Time window penalties evaluated
               </div>
             </div>
 
             {/* Algorithm & Runtime */}
-            <div style={{ background: '#0b1329', padding: '16px', borderRadius: '10px', border: '1px solid #1e293b' }}>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Algorithm Runtime</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: '700', color: '#818cf8', marginTop: '6px' }}>
+            <div style={{ background: 'var(--bg-surface-secondary)', padding: '14px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Algorithm Runtime</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--accent-primary)', marginTop: '4px' }}>
                 {result.comparison.runtime_seconds} sec
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                 Executed: <strong>{result.final_strategy}</strong>
               </div>
             </div>
           </div>
 
           {/* Validation Status Badges */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', fontSize: '0.8rem', padding: '10px 14px', background: '#090e1a', borderRadius: '8px' }}>
-            <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CheckCircle2 size={14} /> Capacity Constraints Verified
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              flexWrap: 'wrap',
+              fontSize: '0.78125rem',
+              padding: '8px 12px',
+              background: 'var(--color-success-bg)',
+              borderRadius: '6px',
+              border: '1px solid var(--color-success-border)',
+            }}
+          >
+            <span style={{ color: 'var(--color-success-text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={13} /> Capacity Constraints Verified
             </span>
-            <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CheckCircle2 size={14} /> All Customers Visited (No Lost Orders)
+            <span style={{ color: 'var(--color-success-text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={13} /> All Customers Visited (No Lost Orders)
             </span>
-            <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CheckCircle2 size={14} /> Depot Return Loops Verified
+            <span style={{ color: 'var(--color-success-text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={13} /> Depot Return Loops Verified
             </span>
           </div>
         </div>
@@ -362,27 +521,37 @@ export default function OptimizationPage({ onNavigate }) {
 
       {/* Interactive Map of Generated Multi-Vehicle Routes */}
       {result && result.routes && result.routes.length > 0 && (
-        <div className="glass-card" style={{ padding: '20px' }}>
+        <div className="card" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>Interactive Multi-Vehicle Route Map (Pune)</h3>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-main)' }}>
+              Generated Multi-Vehicle Delivery Routes (Pune)
+            </h3>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
               {result.routes.length} vehicle routes generated
             </span>
           </div>
-          <DeliveryMap routes={result.routes} height="520px" />
+          <DeliveryMap routes={result.routes} height="500px" />
 
           {/* Route Breakdown List */}
-          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
-            {result.routes.map((rt, idx) => (
-              <div key={rt.id} style={{ background: '#0b1329', padding: '14px', borderRadius: '8px', border: '1px solid #1e293b' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '0.9rem', color: '#f8fafc' }}>
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+            {result.routes.map((rt) => (
+              <div
+                key={rt.id}
+                style={{
+                  background: 'var(--bg-surface-secondary)',
+                  padding: '12px 14px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', fontSize: '0.875rem', color: 'var(--text-main)' }}>
                   <span>{rt.vehicle_number || `Vehicle ${rt.vehicle_id}`}</span>
-                  <span style={{ color: '#6366f1' }}>{rt.total_distance_km} km</span>
+                  <span style={{ color: 'var(--accent-primary)' }}>{rt.total_distance_km} km</span>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>
-                  Load: {rt.total_load_kg} kg ({rt.utilization_pct}% capacity) | Duration: ~{Math.round(rt.estimated_duration_mins)} mins
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '3px' }}>
+                  Load: {rt.total_load_kg} kg ({rt.utilization_pct}% capacity) | Duration: ~{Math.round(rt.estimated_duration_mins)}m
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-faint)', marginTop: '2px' }}>
                   Stops: {rt.stops.length} (Depot → {rt.stops.length - 2} Orders → Depot)
                 </div>
               </div>

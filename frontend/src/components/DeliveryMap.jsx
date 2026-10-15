@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import { MapPin, Navigation, Layers } from 'lucide-react';
 
-// Free, Reliable Map Tile Providers (NO API key required, zero watermarks)
+// Reliable Map Tile Providers
 const MAP_PROVIDERS = {
   osm: {
     id: 'osm',
@@ -36,16 +36,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Color palette for distinct vehicle routes
+// Color palette for distinct vehicle routes - clean saturated logistics colors
 const ROUTE_COLORS = [
-  '#6366f1', // Indigo
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#06b6d4', // Cyan
-  '#ec4899', // Pink
-  '#8b5cf6', // Violet
-  '#14b8a6', // Teal
-  '#f97316', // Orange
+  '#2563eb', // Blue
+  '#16a34a', // Emerald
+  '#d97706', // Amber
+  '#0284c7', // Sky
+  '#9333ea', // Purple
+  '#dc2626', // Red
+  '#0d9488', // Teal
+  '#ea580c', // Orange
 ];
 
 // Custom HTML Markers
@@ -53,32 +53,32 @@ const createDepotIcon = (label = '🏢') => {
   return L.divIcon({
     className: 'custom-depot-marker',
     html: `
-      <div style="background: #4f46e5; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+      <div style="background: #2563eb; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
         ${label}
       </div>
     `,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -18],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
   });
 };
 
 const createCustomerIcon = (seq, priority = 'NORMAL', isLate = false) => {
-  let bg = '#3b82f6';
-  if (priority === 'URGENT') bg = '#ef4444';
-  else if (priority === 'HIGH') bg = '#f97316';
-  else if (isLate) bg = '#dc2626';
+  let bg = '#2563eb';
+  if (priority === 'URGENT') bg = '#dc2626';
+  else if (priority === 'HIGH') bg = '#ea580c';
+  else if (isLate) bg = '#b91c1c';
 
   return L.divIcon({
     className: 'custom-customer-marker',
     html: `
-      <div style="background: ${bg}; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+      <div style="background: ${bg}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; border: 2px solid #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.25);">
         ${seq || '•'}
       </div>
     `,
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-    popupAnchor: [0, -14],
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12],
   });
 };
 
@@ -86,13 +86,13 @@ const createVehicleIcon = (vNum) => {
   return L.divIcon({
     className: 'custom-vehicle-marker',
     html: `
-      <div style="background: #10b981; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid #ffffff; box-shadow: 0 0 14px rgba(16, 185, 129, 0.8);">
+      <div style="background: #16a34a; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4);">
         🚚
       </div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -20],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
   });
 };
 
@@ -101,7 +101,7 @@ function MapController({ targetCenter, targetZoom }) {
   const map = useMap();
   useEffect(() => {
     if (targetCenter) {
-      map.flyTo(targetCenter, targetZoom || 13, { duration: 1.2 });
+      map.flyTo(targetCenter, targetZoom || 13, { duration: 1.0 });
     }
   }, [targetCenter, targetZoom, map]);
   return null;
@@ -114,7 +114,7 @@ function BoundsUpdater({ points }) {
     if (points && points.length > 1) {
       try {
         const bounds = L.latLngBounds(points);
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
       } catch (e) {
         // Ignore bounds error if invalid
       }
@@ -177,17 +177,17 @@ export default function DeliveryMap({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             overflowX: 'auto',
-            padding: '6px 10px',
-            background: '#090f1f',
-            borderRadius: '8px',
-            border: '1px solid #1e293b',
+            padding: '6px 8px',
+            background: 'var(--bg-surface)',
+            borderRadius: '6px',
+            border: '1px solid var(--border-color)',
             fontSize: '0.75rem',
           }}
         >
-          <span style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', fontWeight: '600' }}>
-            <MapPin size={13} style={{ color: '#6366f1' }} /> Pune Jump:
+          <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', fontWeight: '600' }}>
+            <MapPin size={12} style={{ color: 'var(--accent-primary)' }} /> Jump to:
           </span>
           {PUNE_LOCALITIES.map((loc) => (
             <button
@@ -195,12 +195,10 @@ export default function DeliveryMap({
               type="button"
               className="btn-secondary"
               style={{
-                padding: '3px 9px',
-                fontSize: '0.75rem',
-                borderRadius: '6px',
+                padding: '2px 8px',
+                fontSize: '0.72rem',
+                borderRadius: '4px',
                 whiteSpace: 'nowrap',
-                background: '#131e36',
-                borderColor: '#233554',
               }}
               onClick={() => {
                 setMapTarget(loc.coords);
@@ -214,47 +212,45 @@ export default function DeliveryMap({
       )}
 
       {/* Map Container */}
-      <div style={{ height, width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #233554', position: 'relative' }}>
+      <div style={{ height, width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', position: 'relative' }}>
         {/* City Overlay Badge */}
         <div
           style={{
             position: 'absolute',
-            top: '12px',
-            left: '12px',
+            top: '10px',
+            left: '10px',
             zIndex: 1000,
-            background: 'rgba(15, 23, 42, 0.85)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(99, 102, 241, 0.4)',
-            borderRadius: '8px',
-            padding: '6px 12px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '6px',
+            padding: '5px 10px',
             fontSize: '0.75rem',
             fontWeight: '600',
-            color: '#f8fafc',
+            color: 'var(--text-main)',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           }}
         >
-          <span style={{ color: '#10b981' }}>●</span>
-          <span>Pune City Delivery Grid (Maharashtra, India)</span>
+          <span style={{ color: 'var(--color-success)' }}>●</span>
+          <span>Pune City Delivery Grid</span>
         </div>
 
         {/* Layer Switcher Pill Toolbar */}
         <div
           style={{
             position: 'absolute',
-            top: '12px',
-            right: '12px',
+            top: '10px',
+            right: '10px',
             zIndex: 1000,
-            background: 'rgba(15, 23, 42, 0.88)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(99, 102, 241, 0.4)',
-            borderRadius: '8px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '6px',
             padding: '3px',
             display: 'flex',
-            gap: '4px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            gap: '3px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           }}
         >
           {Object.entries(MAP_PROVIDERS).map(([key, provider]) => (
@@ -263,13 +259,13 @@ export default function DeliveryMap({
               type="button"
               onClick={() => setMapStyle(key)}
               style={{
-                padding: '4px 10px',
+                padding: '3px 8px',
                 fontSize: '0.72rem',
-                fontWeight: mapStyle === key ? '700' : '500',
-                color: mapStyle === key ? '#ffffff' : '#94a3b8',
-                background: mapStyle === key ? '#4f46e5' : 'transparent',
+                fontWeight: mapStyle === key ? '600' : '500',
+                color: mapStyle === key ? '#ffffff' : 'var(--text-secondary)',
+                background: mapStyle === key ? 'var(--accent-primary)' : 'transparent',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
@@ -300,11 +296,11 @@ export default function DeliveryMap({
             <Marker key={`wh-${wh.id || idx}`} position={[wh.latitude, wh.longitude]} icon={createDepotIcon('🏢')}>
               <Popup>
                 <div style={{ minWidth: '180px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#6366f1', marginBottom: '4px' }}>
+                  <div style={{ fontWeight: 'bold', color: 'var(--accent-primary)', marginBottom: '3px' }}>
                     🏢 {wh.name || 'Logistics Depot'}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#cbd5e1' }}>{wh.address}</div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{wh.address}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '3px' }}>
                     Coordinates: {wh.latitude?.toFixed(4)}, {wh.longitude?.toFixed(4)}
                   </div>
                 </div>
@@ -322,15 +318,15 @@ export default function DeliveryMap({
               >
                 <Popup>
                   <div>
-                    <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '2px', color: 'var(--text-main)' }}>
                       {o.customer_name || `Order ${o.order_code}`}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>{o.address}</div>
-                    <div style={{ marginTop: '6px', fontSize: '11px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{o.address}</div>
+                    <div style={{ marginTop: '5px', fontSize: '11px', color: 'var(--text-muted)' }}>
                       <strong>Weight:</strong> {o.package_weight} kg |{' '}
                       <strong>Priority:</strong> {o.priority}
                     </div>
-                    <div style={{ fontSize: '11px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                       <strong>Status:</strong> {o.status}
                     </div>
                   </div>
@@ -387,18 +383,18 @@ export default function DeliveryMap({
                             <div style={{ fontWeight: 'bold', color, marginBottom: '2px' }}>
                               Stop #{stop.stop_sequence}: {stop.address}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '3px 0' }}>
                               Vehicle: {route.vehicle_number || `Vehicle ${route.vehicle_id}`}
                             </div>
-                            <div style={{ fontSize: '11px' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                               <strong>Package:</strong> {stop.package_weight} kg
                             </div>
-                            <div style={{ fontSize: '11px' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                               <strong>ETA:</strong> {Math.floor(stop.eta_minutes / 60)}:
                               {String(Math.round(stop.eta_minutes % 60)).padStart(2, '0')}{' '}
-                              {stop.is_late && <span style={{ color: '#ef4444' }}>(LATE)</span>}
+                              {stop.is_late && <span style={{ color: 'var(--color-danger)' }}>(LATE)</span>}
                             </div>
-                            <div style={{ fontSize: '11px' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                               <strong>Status:</strong> {stop.status}
                             </div>
                           </div>
@@ -419,21 +415,21 @@ export default function DeliveryMap({
             >
               <Popup>
                 <div style={{ minWidth: '180px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ fontWeight: 'bold', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span>🚚 {lv.vehicle_number}</span>
-                    <span style={{ fontSize: '10px', background: '#064e3b', color: '#6ee7b7', padding: '1px 6px', borderRadius: '4px' }}>
+                    <span style={{ fontSize: '10px', background: 'var(--color-success-bg)', color: 'var(--color-success-text)', padding: '1px 5px', borderRadius: '3px', border: '1px solid var(--color-success-border)' }}>
                       {lv.is_simulation ? 'SIMULATING' : 'LIVE GPS'}
                     </span>
                   </div>
-                  <div style={{ fontSize: '11px', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--text-secondary)' }}>
                     <strong>Speed:</strong> {lv.speed} km/h | <strong>Load:</strong> {lv.current_load} kg
                   </div>
                   {lv.next_stop_address && (
-                    <div style={{ fontSize: '11px', marginTop: '2px', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-muted)' }}>
                       <strong>Next Stop:</strong> #{lv.next_stop_sequence} ({lv.next_stop_address})
                     </div>
                   )}
-                  <div style={{ fontSize: '11px', marginTop: '2px' }}>
+                  <div style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>
                     <strong>Status:</strong> {lv.status}
                   </div>
                 </div>
