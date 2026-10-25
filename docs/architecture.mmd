@@ -1,0 +1,93 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#0e1117',
+    'primaryColor': '#1e222b',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#4a5568',
+    'lineColor': '#718096',
+    'secondaryColor': '#161920',
+    'tertiaryColor': '#2d3748',
+    'fontFamily': 'Inter, system-ui, sans-serif'
+  }
+}}%%
+
+flowchart LR
+    %% User & Presentation
+    User["User: orders CSV or config"] -->|upload & configure| Frontend["React + Vite frontend"]
+    Frontend -->|history & filters| BrowserStorage[("Browser localStorage")]
+    Frontend -->|POST /api/orders/import| Backend["FastAPI backend"]
+    Frontend -->|POST /api/optimization/run| Backend
+    Frontend -->|POST /api/simulation/start| Backend
+    Backend -->|WebSocket /ws/live| Frontend
+    Backend -->|structured JSON result| Frontend
+
+    %% Backend Subsystems Branching
+    Backend -->|geocode address| GeocodeRouter["Geocoding router"]
+    Backend -->|extract 8 features| ComplexityBuilder["Complexity feature builder"]
+    Backend -->|select & execute| DAAEngine["DAA optimization engine"]
+    Backend -->|driving road geometry| RoutingService["Routing & distance service"]
+    Backend -->|background loop| SimEngine["Asyncio simulation engine"]
+    Backend -->|SQLAlchemy ORM| DBStorage[("SQLite database delivery.db")]
+
+    %% Geocoding Branch
+    GeocodeRouter -->|local match| PuneDict[("Local Pune dictionary - 40+ areas")]
+    GeocodeRouter -->|PIN match| PunePIN[("Pune PIN code map - 25+ PINs")]
+    GeocodeRouter -->|remote query| NominatimAPI["Nominatim OSM API"]
+    GeocodeRouter -->|unresolved| StrictFail["Strict validation - status FAILED"]
+
+    %% Complexity & ML Strategy Classifier Branch
+    ComplexityBuilder -->|normalized vector| MLClassifier["ML strategy classifier"]
+    MLClassifier -->|model configured| RFModel[("Random Forest - model.joblib 85%")]
+    MLClassifier -->|fallback mode| RuleHeuristics["Deterministic heuristics"]
+    MLClassifier -->|predicted strategy| StratArbiter["Safety & feasibility arbiter"]
+
+    %% Strategy Arbiter Dispatches to DAA Solvers
+    StratArbiter -->|selected strategy| DAAEngine
+
+    %% DAA Optimization Solvers
+    DAAEngine -->|orders <= 6 or low complexity| GreedySolver["Greedy nearest neighbor"]
+    DAAEngine -->|moderate complexity / 2-opt| LocalSearchSolver["Local search - 2-Opt & relocation"]
+    DAAEngine -->|high complexity / genetic| GeneticSolver["Genetic algorithm - Order Crossover"]
+    DAAEngine -->|score >= 75 & orders >= 25| HybridSolver["Hybrid optimizer - GA + 2-Opt"]
+
+    %% Solver Solutions to Route Evaluator
+    GreedySolver -->|candidate solution| RouteEvaluator["Route evaluator & constraint checks"]
+    LocalSearchSolver -->|candidate solution| RouteEvaluator
+    GeneticSolver -->|candidate solution| RouteEvaluator
+    HybridSolver -->|candidate solution| RouteEvaluator
+
+    %% Constraint Checks
+    RouteEvaluator -->|validate capacity| CapCheck["Vehicle capacity limit check"]
+    RouteEvaluator -->|validate arrival vs end| TWCheck["Time window & lateness check"]
+    RouteEvaluator -->|order coverage| CoverageCheck["Zero unassigned & duplicate check"]
+
+    %% Routing & OSRM Branch
+    RoutingService -->|sub-millisecond matrix| MatrixBuilder["Haversine 1.3x matrix builder"]
+    RoutingService -->|turn-by-turn road polyline| OSRMClient["OSRM routing engine"]
+    OSRMClient -->|HTTP GET /route/v1/driving| OSRMAPI["External OSRM public API"]
+    RoutingService -->|cached road segments| RoutingCache[("routing_cache table")]
+
+    %% Simulation Engine Branch
+    SimEngine -->|segment interpolation| TelemetryGen["Live GPS telemetry generator"]
+    TelemetryGen -->|broadcast position| WSManager["WebSocket connection manager"]
+    WSManager -->|live vehicle coords| Frontend
+    TelemetryGen -->|persist location audit| LocHistory[("vehicle_locations table")]
+
+    %% Database Entities
+    DBStorage --- OrdersTable[("orders table")]
+    DBStorage --- VehiclesTable[("vehicles table")]
+    DBStorage --- RoutesTable[("routes & route_stops")]
+    DBStorage --- RunsTable[("optimization_runs & metrics")]
+    DBStorage --- ModelsTable[("model_versions table")]
+
+    %% Node Styling matching reference aesthetic
+    classDef default fill:#161920,stroke:#4a5568,stroke-width:1.2px,color:#ffffff;
+    classDef cylinderNode fill:#1c212d,stroke:#5a67d8,stroke-width:1.5px,color:#e2e8f0;
+    classDef highlightNode fill:#1a2332,stroke:#3182ce,stroke-width:1.5px,color:#ffffff;
+    classDef warningNode fill:#2d1519,stroke:#e53e3e,stroke-width:1.2px,color:#feb2b2;
+
+    class BrowserStorage,PuneDict,PunePIN,RFModel,RoutingCache,LocHistory,DBStorage,OrdersTable,VehiclesTable,RoutesTable,RunsTable,ModelsTable cylinderNode;
+    class Frontend,Backend,DAAEngine,MLClassifier,RoutingService,SimEngine highlightNode;
+    class StrictFail warningNode;

@@ -44,6 +44,7 @@ yarn-error.log*
 *.swp
 *.swo
 
-# OS
+# OS & Temp
 .DS_Store
 Thumbs.db
+~$*

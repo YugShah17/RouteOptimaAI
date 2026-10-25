@@ -1,0 +1,850 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- Dark Tech Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a13" />
+      <stop offset="50%" stop-color="#0b0f19" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <!-- Component Box Gradients -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <linearGradient id="mlCardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2e1065" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <linearGradient id="optCardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#312e81" />
+      <stop offset="50%" stop-color="#4338ca" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <linearGradient id="dbCapGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filters -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+
+    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#3b82f6" flood-opacity="0.6" />
+    </filter>
+
+    <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#10b981" flood-opacity="0.6" />
+    </filter>
+
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#a855f7" flood-opacity="0.6" />
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+    </marker>
+
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
+    </marker>
+
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24" />
+    </marker>
+
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fb923c" />
+    </marker>
+
+    <!-- Subtle Dot Grid Pattern -->
+    <pattern id="dotGrid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#334155" fill-opacity="0.25" />
+    </pattern>
+  </defs>
+
+  <style>
+    text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .title { font-size: 26px; font-weight: 800; fill: #f8fafc; letter-spacing: 0.5px; }
+    .subtitle { font-size: 13px; font-weight: 500; fill: #94a3b8; }
+    .layer-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; }
+    .comp-title { font-size: 13px; font-weight: 700; fill: #f1f5f9; }
+    .comp-sub { font-size: 10.5px; font-weight: 400; fill: #94a3b8; }
+    .badge-text { font-size: 9.5px; font-weight: 600; text-transform: uppercase; }
+    .conn-label { font-size: 10px; font-weight: 600; fill: #93c5fd; }
+    .legend-text { font-size: 11px; font-weight: 500; fill: #cbd5e1; }
+    .conn-path { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <!-- Base Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bgGrad)" />
+  <rect width="1920" height="1080" fill="url(#dotGrid)" />
+
+  <!-- Outer Canvas Border -->
+  <rect x="15" y="15" width="1890" height="1050" rx="12" fill="none" stroke="#1e293b" stroke-width="1.5" />
+
+  <!-- ========================================================================= -->
+  <!-- HEADER BAR                                                                -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 32)">
+    <rect x="0" y="0" width="36" height="36" rx="8" fill="#2563eb" />
+    <path d="M 10 18 L 18 10 L 26 18 L 18 26 Z" fill="none" stroke="#ffffff" stroke-width="2.5" />
+    <circle cx="18" cy="18" r="3.5" fill="#38bdf8" />
+    
+    <text x="50" y="22" class="title">RouteOptimaAI</text>
+    <text x="248" y="22" font-size="16" font-weight="400" fill="#64748b">|</text>
+    <text x="262" y="22" font-size="16" font-weight="600" fill="#38bdf8">System Architecture Diagram</text>
+    <text x="50" y="40" class="subtitle">Complexity-Aware Multi-Vehicle Routing System with Scikit-Learn Strategy Classifier &amp; DAA Heuristics</text>
+
+    <!-- Header Status Badges -->
+    <g transform="translate(1420, 4)">
+      <rect x="0" y="0" width="130" height="26" rx="6" fill="#1e293b" stroke="#334155" />
+      <circle cx="12" cy="13" r="4" fill="#10b981" />
+      <text x="24" y="17" font-size="11" font-weight="600" fill="#e2e8f0">FastAPI 0.110</text>
+
+      <rect x="140" y="0" width="120" height="26" rx="6" fill="#1e293b" stroke="#334155" />
+      <circle cx="152" cy="13" r="4" fill="#38bdf8" />
+      <text x="164" y="17" font-size="11" font-weight="600" fill="#e2e8f0">React 19 + Vite</text>
+
+      <rect x="270" y="0" width="145" height="26" rx="6" fill="#1e293b" stroke="#334155" />
+      <circle cx="282" cy="13" r="4" fill="#a855f7" />
+      <text x="294" y="17" font-size="11" font-weight="600" fill="#e2e8f0">Random Forest 85%</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 1: PRESENTATION & CLIENT LAYER (X: 40, Y: 95, W: 310, H: 890)        -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="310" height="890" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="16" y="16" width="278" height="30" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2" />
+    <text x="28" y="36" class="layer-title" fill="#60a5fa">1. Presentation Layer (UI)</text>
+
+    <!-- User / Dispatcher Actor Box -->
+    <g transform="translate(16, 62)">
+      <rect x="0" y="0" width="278" height="64" rx="8" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.2" />
+      <circle cx="28" cy="32" r="16" fill="#1d4ed8" />
+      <!-- Dispatcher Icon -->
+      <circle cx="28" cy="28" r="6" fill="#ffffff" />
+      <path d="M 18 42 C 18 36 38 36 38 42" fill="#ffffff" />
+      <text x="54" y="28" class="comp-title">Logistics Dispatcher</text>
+      <text x="54" y="44" class="comp-sub">Fleet Planner / Operations User</text>
+      <text x="54" y="56" font-size="9" fill="#38bdf8">Creates Orders &bull; Configures Runs &bull; Audits</text>
+    </g>
+
+    <!-- Frontend React 19 Application Container -->
+    <g transform="translate(16, 142)">
+      <rect x="0" y="0" width="278" height="730" rx="8" fill="#0b1120" stroke="#2563eb" stroke-dasharray="4 2" stroke-width="1" />
+      <rect x="10" y="10" width="258" height="24" rx="4" fill="#1e293b" />
+      <text x="18" y="26" font-size="11" font-weight="700" fill="#93c5fd">React 19 Single Page App (Vite)</text>
+
+      <!-- DashboardPage Component -->
+      <g transform="translate(10, 44)">
+        <rect x="0" y="0" width="258" height="66" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="14" y="20" class="comp-title">DashboardPage.jsx</text>
+        <text x="14" y="36" class="comp-sub">Fleet Utilization &bull; Order Status Charts</text>
+        <text x="14" y="52" font-size="9.5" fill="#64748b">GET /api/dashboard/summary</text>
+      </g>
+
+      <!-- OrdersPage & CSV Import -->
+      <g transform="translate(10, 120)">
+        <rect x="0" y="0" width="258" height="80" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="14" y="20" class="comp-title">OrdersPage &amp; CreateOrder</text>
+        <text x="14" y="36" class="comp-sub">Bulk CSV Import &bull; Address &amp; Time Window</text>
+        <text x="14" y="52" class="comp-sub">Geocode Status Badges (Pending/Success)</text>
+        <text x="14" y="68" font-size="9.5" fill="#64748b">POST /api/orders/import | POST /api/orders</text>
+      </g>
+
+      <!-- VehiclesPage -->
+      <g transform="translate(10, 210)">
+        <rect x="0" y="0" width="258" height="66" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="14" y="20" class="comp-title">VehiclesPage.jsx</text>
+        <text x="14" y="36" class="comp-sub">Fleet Roster &bull; Capacity &bull; Current Load</text>
+        <text x="14" y="52" font-size="9.5" fill="#64748b">GET/POST /api/vehicles</text>
+      </g>
+
+      <!-- OptimizationPage Component -->
+      <g transform="translate(10, 286)">
+        <rect x="0" y="0" width="258" height="92" rx="6" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="1.5" />
+        <text x="14" y="20" class="comp-title" fill="#60a5fa">OptimizationPage.jsx</text>
+        <text x="14" y="36" class="comp-sub">ML Recommendation Banner &amp; Score</text>
+        <text x="14" y="52" class="comp-sub">Algorithm Selector &bull; Constraint Weights</text>
+        <text x="14" y="68" class="comp-sub">Before vs After Comparison KPIs</text>
+        <text x="14" y="82" font-size="9.5" fill="#38bdf8">POST /api/optimization/analyze &amp; /run</text>
+      </g>
+
+      <!-- Leaflet Interactive Delivery Map -->
+      <g transform="translate(10, 388)">
+        <rect x="0" y="0" width="258" height="96" rx="6" fill="#132338" stroke="#0ea5e9" stroke-width="1.2" />
+        <text x="14" y="20" class="comp-title" fill="#38bdf8">DeliveryMap (Leaflet 1.9.4)</text>
+        <text x="14" y="36" class="comp-sub">React-Leaflet 5.0 &bull; Pune Coordinates</text>
+        <text x="14" y="52" class="comp-sub">Multi-Vehicle Colored Polylines</text>
+        <text x="14" y="68" class="comp-sub">OSM Streets / Esri / Satellite Layers</text>
+        <text x="14" y="84" font-size="9.5" fill="#38bdf8">Live Vehicle Moving GPS Markers</text>
+      </g>
+
+      <!-- LiveTrackingPage & Simulation Controller -->
+      <g transform="translate(10, 494)">
+        <rect x="0" y="0" width="258" height="80" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="14" y="20" class="comp-title">LiveTrackingPage.jsx</text>
+        <text x="14" y="36" class="comp-sub">Simulation Controls (Start / Stop / Speed)</text>
+        <text x="14" y="52" class="comp-sub">Real-Time Vehicle ETAs &amp; Status</text>
+        <text x="14" y="68" font-size="9.5" fill="#64748b">POST /api/simulation/start &bull; ws:// /ws/live</text>
+      </g>
+
+      <!-- MLModelPage & OptimizationHistory -->
+      <g transform="translate(10, 584)">
+        <rect x="0" y="0" width="258" height="66" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="14" y="20" class="comp-title">MLModelPage &amp; History</text>
+        <text x="14" y="36" class="comp-sub">RF Confusion Matrix &bull; Feature Weights</text>
+        <text x="14" y="52" font-size="9.5" fill="#64748b">GET /api/ml/metrics | /api/optimization/runs</text>
+      </g>
+
+      <!-- API & WebSocket Client (api.js) -->
+      <g transform="translate(10, 660)">
+        <rect x="0" y="0" width="258" height="58" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1" />
+        <text x="14" y="20" class="comp-title" fill="#93c5fd">Frontend API Client (api.js)</text>
+        <text x="14" y="36" class="comp-sub">REST Fetch Client (JSON / Multipart)</text>
+        <text x="14" y="50" font-size="9.5" fill="#38bdf8">WebSocket Client Reconnection Loop</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 2: BACKEND API GATEWAY & CONTROLLERS (X: 380, Y: 95, W: 300, H: 890) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(380, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="300" height="890" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="16" y="16" width="268" height="30" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.2" />
+    <text x="26" y="36" class="layer-title" fill="#a5b4fc">2. Backend API Layer (FastAPI)</text>
+
+    <!-- FastAPI Application Entry & Security -->
+    <g transform="translate(16, 62)">
+      <rect x="0" y="0" width="268" height="96" rx="8" fill="url(#cardGrad)" stroke="#6366f1" stroke-width="1.2" />
+      <text x="14" y="22" class="comp-title" fill="#c7d2fe">FastAPI Application (main.py)</text>
+      <text x="14" y="40" class="comp-sub">Uvicorn ASGI &bull; Lifespan Startup / DB Migration</text>
+      <text x="14" y="56" class="comp-sub">CORS Middleware (Configurable Origins)</text>
+      <text x="14" y="72" class="comp-sub">Simulation API Key Verification (X-API-Key)</text>
+      <text x="14" y="86" font-size="9" fill="#a5b4fc">Pydantic V2 Request / Response Schemas</text>
+    </g>
+
+    <!-- API Controllers in routes_api.py -->
+    <g transform="translate(16, 170)">
+      <rect x="0" y="0" width="268" height="520" rx="8" fill="#090d16" stroke="#334155" stroke-width="1" />
+      <rect x="10" y="10" width="248" height="24" rx="4" fill="#1e293b" />
+      <text x="18" y="26" font-size="11" font-weight="700" fill="#c7d2fe">API Routes (routes_api.py)</text>
+
+      <!-- Order Endpoints -->
+      <g transform="translate(10, 42)">
+        <rect x="0" y="0" width="248" height="88" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="12" y="18" class="comp-title">Order Controller</text>
+        <text x="12" y="34" class="comp-sub">POST /api/orders &bull; GET /api/orders</text>
+        <text x="12" y="48" class="comp-sub">POST /api/orders/import (CSV Multipart)</text>
+        <text x="12" y="62" class="comp-sub">POST /api/orders/{id}/retry-geocode</text>
+        <text x="12" y="76" font-size="9" fill="#818cf8">GET /orders/export &bull; GET /orders/template</text>
+      </g>
+
+      <!-- Vehicle Endpoints -->
+      <g transform="translate(10, 138)">
+        <rect x="0" y="0" width="248" height="74" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="12" y="18" class="comp-title">Vehicle &amp; Telemetry Controller</text>
+        <text x="12" y="34" class="comp-sub">GET /api/vehicles &bull; POST /api/vehicles</text>
+        <text x="12" y="48" class="comp-sub">POST /api/vehicles/{id}/location (GPS Telemetry)</text>
+        <text x="12" y="64" font-size="9" fill="#818cf8">Protected by Simulation API Key</text>
+      </g>
+
+      <!-- Optimization Controller -->
+      <g transform="translate(10, 220)">
+        <rect x="0" y="0" width="248" height="106" rx="6" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="1.5" />
+        <text x="12" y="18" class="comp-title" fill="#93c5fd">Optimization Controller</text>
+        <text x="12" y="34" class="comp-sub">POST /api/optimization/analyze</text>
+        <text x="12" y="48" class="comp-sub">&bull; Complexity Score &amp; ML Recommendation</text>
+        <text x="12" y="64" class="comp-sub">POST /api/optimization/run</text>
+        <text x="12" y="78" class="comp-sub">&bull; Solvers &bull; Before vs After &bull; Polylines</text>
+        <text x="12" y="94" font-size="9" fill="#38bdf8">GET /api/optimization/runs &amp; /runs/{id}</text>
+      </g>
+
+      <!-- Simulation Controller -->
+      <g transform="translate(10, 334)">
+        <rect x="0" y="0" width="248" height="88" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="12" y="18" class="comp-title">Simulation Controller</text>
+        <text x="12" y="34" class="comp-sub">POST /api/simulation/start (speed: 1-10x)</text>
+        <text x="12" y="48" class="comp-sub">POST /api/simulation/stop</text>
+        <text x="12" y="62" class="comp-sub">GET /api/simulation/status</text>
+        <text x="12" y="78" font-size="9" fill="#818cf8">GET /simulation/api-key-info</text>
+      </g>
+
+      <!-- ML Info & Demo Seeding -->
+      <g transform="translate(10, 430)">
+        <rect x="0" y="0" width="248" height="78" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+        <text x="12" y="18" class="comp-title">ML &amp; System Metadata</text>
+        <text x="12" y="34" class="comp-sub">GET /api/ml/metrics &bull; GET /ml/model-info</text>
+        <text x="12" y="48" class="comp-sub">POST /api/demo/seed &bull; POST /demo/clear</text>
+        <text x="12" y="66" font-size="9" fill="#818cf8">GET /api/warehouses &bull; GET /api/health</text>
+      </g>
+    </g>
+
+    <!-- Real-Time WebSocket Manager -->
+    <g transform="translate(16, 702)">
+      <rect x="0" y="0" width="268" height="170" rx="8" fill="#141c2e" stroke="#38bdf8" stroke-width="1.2" />
+      <text x="14" y="24" class="comp-title" fill="#38bdf8">WebSocket Manager</text>
+      <text x="14" y="40" font-size="11" font-weight="600" fill="#93c5fd">(websocket_manager.py)</text>
+      <text x="14" y="58" class="comp-sub">Endpoint: ws://host:8000/ws/live</text>
+      <text x="14" y="74" class="comp-sub">Maintains Active Client Connections</text>
+      <text x="14" y="90" class="comp-sub">Real-Time Event Broadcast:</text>
+      <text x="24" y="106" font-size="10" fill="#cbd5e1">&bull; vehicle_location (lat, lng, speed)</text>
+      <text x="24" y="122" font-size="10" fill="#cbd5e1">&bull; simulation_status (speed, running)</text>
+      <text x="24" y="138" font-size="10" fill="#cbd5e1">&bull; optimization_progress (stage, %)</text>
+      <text x="14" y="156" font-size="9" fill="#38bdf8">Bi-directional Non-Blocking Stream</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 3: DATA PREPARATION & GEOCODING (X: 710, Y: 95, W: 310, H: 430)       -->
+  <!-- ========================================================================= -->
+  <g transform="translate(710, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="310" height="430" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="16" y="16" width="278" height="30" rx="6" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.2" />
+    <text x="26" y="36" class="layer-title" fill="#38bdf8">3. Data Prep &amp; Geocoding</text>
+
+    <!-- CSV Parsing & Sanitization -->
+    <g transform="translate(16, 58)">
+      <rect x="0" y="0" width="278" height="80" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+      <text x="12" y="20" class="comp-title">CSV Parser &amp; Validator</text>
+      <text x="12" y="36" class="comp-sub">Header Mapping: Customer, Address, Area,</text>
+      <text x="12" y="50" class="comp-sub">Pincode, Weight, Priority, Time Window</text>
+      <text x="12" y="68" font-size="9.5" fill="#38bdf8">Sanitizes &amp; Drops Malformed Records</text>
+    </g>
+
+    <!-- Hybrid Geocoding Pipeline -->
+    <g transform="translate(16, 148)">
+      <rect x="0" y="0" width="278" height="152" rx="6" fill="#0b1727" stroke="#0284c7" stroke-width="1.2" />
+      <text x="12" y="20" class="comp-title" fill="#38bdf8">Geocoding Pipeline (geocoding.py)</text>
+      
+      <!-- Tier 1: Local Pune Dict -->
+      <rect x="10" y="30" width="258" height="32" rx="4" fill="#1e293b" />
+      <text x="18" y="46" font-size="10.5" font-weight="700" fill="#e2e8f0">1. Local Pune Locality Dictionary</text>
+      <text x="18" y="58" font-size="9" fill="#94a3b8">40+ Localities (Baner, Kothrud, etc.) &amp; 25+ PIN codes</text>
+
+      <!-- Tier 2: Nominatim OSM -->
+      <rect x="10" y="68" width="258" height="34" rx="4" fill="#1e293b" />
+      <text x="18" y="84" font-size="10.5" font-weight="700" fill="#e2e8f0">2. OpenStreetMap Nominatim</text>
+      <text x="18" y="96" font-size="9" fill="#94a3b8">Remote Forward Geocoding HTTP Query</text>
+
+      <!-- Tier 3: Strict Failure Policy -->
+      <rect x="10" y="108" width="258" height="34" rx="4" fill="#3b0712" stroke="#dc2626" stroke-width="0.8" />
+      <text x="18" y="122" font-size="10" font-weight="700" fill="#fca5a5">3. Strict Validation (Zero Fake Coords)</text>
+      <text x="18" y="135" font-size="9" fill="#fecaca">Marks status='FAILED' if unlocated; never fakes</text>
+    </g>
+
+    <!-- Distance & Travel Time Matrix Preparation -->
+    <g transform="translate(16, 310)">
+      <rect x="0" y="0" width="278" height="106" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+      <text x="12" y="20" class="comp-title">Distance Matrix Builder (routing.py)</text>
+      <text x="12" y="36" class="comp-sub">Builds NxN Distance (km) &amp; Time (min) Matrices</text>
+      <text x="12" y="52" class="comp-sub">Fast Geodesic Calculation &bull; Road Factor: 1.3x</text>
+      <text x="12" y="68" class="comp-sub">Assumed Urban Delivery Speed: 35 km/h</text>
+      <text x="12" y="86" font-size="9.5" fill="#38bdf8">Avoids N&sup2; Slow Remote HTTP Calls in Solvers</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 4: MACHINE LEARNING COMPLEXITY & STRATEGY (X: 710, Y: 540, W: 310, H: 445) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(710, 540)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="310" height="445" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="16" y="16" width="278" height="30" rx="6" fill="#2e1065" stroke="#a855f7" stroke-width="1.2" />
+    <text x="24" y="36" class="layer-title" fill="#c084fc">4. ML Decision Support Layer</text>
+
+    <!-- Complexity Feature Extractor -->
+    <g transform="translate(16, 56)">
+      <rect x="0" y="0" width="278" height="136" rx="6" fill="#140d2b" stroke="#7e22ce" stroke-width="1" />
+      <text x="12" y="20" class="comp-title" fill="#e9d5ff">Feature Extractor (complexity.py)</text>
+      <text x="12" y="36" font-size="10" font-weight="600" fill="#a855f7">Extracts 8 Delivery Scenario Features:</text>
+      
+      <text x="18" y="52" font-size="9.5" fill="#cbd5e1">1. number_of_orders &bull; 2. number_of_vehicles</text>
+      <text x="18" y="66" font-size="9.5" fill="#cbd5e1">3. capacity_utilization % &bull; 4. number_of_constraints</text>
+      <text x="18" y="80" font-size="9.5" fill="#cbd5e1">5. priority_ratio (High/Urgent)</text>
+      <text x="18" y="94" font-size="9.5" fill="#cbd5e1">6. time_window_ratio (&lt; 180 min spans)</text>
+      <text x="18" y="108" font-size="9.5" fill="#cbd5e1">7. geographical_spread &bull; 8. avg_customer_dist</text>
+      
+      <rect x="12" y="114" width="254" height="16" rx="3" fill="#3b0764" />
+      <text x="16" y="126" font-size="9" font-weight="700" fill="#f3e8ff">Normalized Complexity Score (0 - 100) &bull; LOW/MED/HIGH</text>
+    </g>
+
+    <!-- Trained Random Forest Classifier -->
+    <g transform="translate(16, 202)">
+      <rect x="0" y="0" width="278" height="124" rx="6" fill="url(#mlCardGrad)" stroke="#c084fc" stroke-width="1.5" filter="url(#glowPurple)" />
+      <text x="12" y="20" class="comp-title" fill="#ffffff">Random Forest Strategy Classifier</text>
+      <text x="12" y="36" font-size="10.5" fill="#e9d5ff">Model: backend/ml/model.joblib (RF-v1.0)</text>
+      <text x="12" y="52" class="comp-sub">n_estimators=100 &bull; max_depth=6 &bull; 8 Features</text>
+      
+      <rect x="10" y="60" width="258" height="28" rx="4" fill="#0f172a" fill-opacity="0.8" />
+      <text x="16" y="74" font-size="9.5" font-weight="700" fill="#34d399">Trained Accuracy: 85.0%</text>
+      <text x="145" y="74" font-size="9.5" fill="#94a3b8">Precision: 80.8% | F1: 82.5%</text>
+      <text x="16" y="85" font-size="8.5" fill="#94a3b8">Trained on 400 instances &bull; 100 test samples</text>
+
+      <text x="12" y="102" font-size="10" font-weight="600" fill="#facc15">Outputs Predicted Class Probabilities:</text>
+      <text x="12" y="116" font-size="9" fill="#fef08a">[ GREEDY | LOCAL_SEARCH | GENETIC ]</text>
+    </g>
+
+    <!-- Safety & Feasibility Arbiter (Hybrid Rule) -->
+    <g transform="translate(16, 336)">
+      <rect x="0" y="0" width="278" height="96" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.2" />
+      <text x="12" y="18" class="comp-title" fill="#a5b4fc">Safety &amp; Feasibility Arbiter</text>
+      <text x="12" y="34" font-size="9.5" fill="#e2e8f0">&bull; If orders &le; 6: Force GREEDY (0 metaheuristic lag)</text>
+      <text x="12" y="48" font-size="9.5" fill="#e2e8f0">&bull; If score &ge; 75 &amp; orders &ge; 25: Upgrade to HYBRID</text>
+      <text x="12" y="62" font-size="9.5" fill="#e2e8f0">&bull; Fallback Heuristic Rule if model uninitialized:</text>
+      <text x="20" y="76" font-size="9" fill="#94a3b8">&lt; 40: GREEDY | 40-70: LOCAL_SEARCH | &ge; 70: GENETIC</text>
+      <text x="12" y="90" font-size="9" font-weight="700" fill="#38bdf8">Guarantees Safe, Explainable Decisions</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 5: DAA OPTIMIZATION ENGINE (X: 1050, Y: 95, W: 330, H: 890)          -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1050, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="330" height="890" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="16" y="16" width="298" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.2" />
+    <text x="26" y="36" class="layer-title" fill="#34d399">5. DAA Optimization Engine</text>
+
+    <!-- Solver Selection Multiplexer -->
+    <g transform="translate(16, 56)">
+      <rect x="0" y="0" width="298" height="42" rx="6" fill="#022c22" stroke="#059669" stroke-width="1" />
+      <text x="14" y="24" class="comp-title" fill="#6ee7b7">Algorithm Execution Selector</text>
+      <text x="14" y="36" font-size="9" fill="#a7f3d0">Dispatches Request to Target Solver based on Final Strategy</text>
+    </g>
+
+    <!-- Algorithm 1: Greedy Nearest Neighbor -->
+    <g transform="translate(16, 108)">
+      <rect x="0" y="0" width="298" height="106" rx="6" fill="url(#cardGrad)" stroke="#10b981" stroke-width="1.2" />
+      <text x="14" y="20" class="comp-title" fill="#34d399">1. Greedy Nearest Neighbor (greedy.py)</text>
+      <text x="14" y="36" class="comp-sub">Capacity-Constrained Multi-Vehicle Heuristic</text>
+      <text x="14" y="52" class="comp-sub">Priority Distance Multipliers:</text>
+      <text x="24" y="66" font-size="9.5" fill="#fde047">URGENT (0.7x) &bull; HIGH (0.85x) &bull; NORMAL (1.0x) &bull; LOW (1.15x)</text>
+      <text x="14" y="82" class="comp-sub">Least-load overload fallback (0 unserved orders)</text>
+      <text x="14" y="98" font-size="9" fill="#6ee7b7">Runtime: &lt; 5 ms &bull; Used as Initial Seed for LS &amp; GA</text>
+    </g>
+
+    <!-- Algorithm 2: Local Search Optimizer -->
+    <g transform="translate(16, 224)">
+      <rect x="0" y="0" width="298" height="126" rx="6" fill="url(#cardGrad)" stroke="#10b981" stroke-width="1.2" />
+      <text x="14" y="20" class="comp-title" fill="#34d399">2. Local Search Optimizer (local_search.py)</text>
+      <text x="14" y="36" class="comp-sub">Iterative Neighborhood Search (Max 150 iterations)</text>
+      <text x="14" y="52" font-size="9.5" fill="#93c5fd">&bull; 2-Opt Edge Exchanges (intra-route inversions)</text>
+      <text x="14" y="68" font-size="9.5" fill="#93c5fd">&bull; 1-Opt Intra-Route Customer Relocation</text>
+      <text x="14" y="84" font-size="9.5" fill="#93c5fd">&bull; Inter-Route Customer Relocation across vehicles</text>
+      <text x="14" y="100" class="comp-sub">Time Budget Guard: max_time_seconds deadline</text>
+      <text x="14" y="116" font-size="9" fill="#6ee7b7">Removes edge crossings &bull; Fast Convergence</text>
+    </g>
+
+    <!-- Algorithm 3: Genetic Algorithm Optimizer -->
+    <g transform="translate(16, 360)">
+      <rect x="0" y="0" width="298" height="142" rx="6" fill="url(#cardGrad)" stroke="#10b981" stroke-width="1.2" />
+      <text x="14" y="20" class="comp-title" fill="#34d399">3. Genetic Algorithm (genetic.py)</text>
+      <text x="14" y="36" class="comp-sub">Metaheuristic for High Combinatorial Complexity</text>
+      <text x="14" y="52" font-size="9.5" fill="#cbd5e1">&bull; Population: 50 | Generations: 80</text>
+      <text x="14" y="66" font-size="9.5" fill="#cbd5e1">&bull; Seeding: Greedy Solution + Random Permutations</text>
+      <text x="14" y="80" font-size="9.5" fill="#cbd5e1">&bull; Crossover: Order Crossover (OX) (85% rate)</text>
+      <text x="14" y="94" font-size="9.5" fill="#cbd5e1">&bull; Mutation: Swap &amp; Inversion Mutation (20% rate)</text>
+      <text x="14" y="108" font-size="9.5" fill="#cbd5e1">&bull; Selection: Tournament Selection (size 3) + Elitism (top 2)</text>
+      <text x="14" y="122" font-size="9.5" fill="#cbd5e1">&bull; Decoding: Capacity-Balanced Greedy Partitioning</text>
+      <text x="14" y="136" font-size="9" fill="#6ee7b7">Global Exploration across multi-modal landscape</text>
+    </g>
+
+    <!-- Algorithm 4: Hybrid Optimizer -->
+    <g transform="translate(16, 512)">
+      <rect x="0" y="0" width="298" height="126" rx="6" fill="url(#optCardGrad)" stroke="#34d399" stroke-width="1.5" filter="url(#glowGreen)" />
+      <text x="14" y="20" class="comp-title" fill="#ffffff">4. Hybrid Optimizer (hybrid.py)</text>
+      <text x="14" y="36" font-size="10" font-weight="700" fill="#a7f3d0">Two-Phase Evolutionary Memetic Strategy:</text>
+      
+      <rect x="10" y="44" width="278" height="32" rx="4" fill="#0f172a" fill-opacity="0.8" />
+      <text x="16" y="58" font-size="9.5" font-weight="700" fill="#38bdf8">Phase 1: GA Global Exploration (80% time)</text>
+      <text x="16" y="70" font-size="8.5" fill="#94a3b8">Wide search to avoid premature local entrapment</text>
+
+      <rect x="10" y="82" width="278" height="32" rx="4" fill="#0f172a" fill-opacity="0.8" />
+      <text x="16" y="96" font-size="9.5" font-weight="700" fill="#34d399">Phase 2: Local Search / 2-Opt (20% time)</text>
+      <text x="16" y="108" font-size="8.5" fill="#94a3b8">Intensive local exploitation of best candidate route</text>
+
+      <text x="14" y="122" font-size="9" font-weight="600" fill="#fef08a">Highest Quality Route Yield for Complex Problems</text>
+    </g>
+
+    <!-- Route Evaluator & Constraint Validator -->
+    <g transform="translate(16, 650)">
+      <rect x="0" y="0" width="298" height="224" rx="8" fill="#0b1720" stroke="#10b981" stroke-width="1.5" />
+      <text x="14" y="22" class="comp-title" fill="#6ee7b7">Route Evaluator (evaluator.py)</text>
+      <text x="14" y="38" font-size="10.5" font-weight="600" fill="#93c5fd">Multi-Vehicle CVRPTW Objective Cost:</text>
+      
+      <rect x="10" y="46" width="278" height="42" rx="4" fill="#1e293b" />
+      <text x="16" y="60" font-size="9" font-family="monospace" fill="#facc15">Cost = 1.0*Dist + 0.2*Time +</text>
+      <text x="16" y="74" font-size="9" font-family="monospace" fill="#f87171">       50.0*LateStops + 1000.0*CapOverrun</text>
+      <text x="16" y="84" font-size="8.5" font-family="monospace" fill="#f87171">     + 5000.0*Unassigned + 5000.0*Duplicates</text>
+
+      <text x="14" y="102" font-size="10" font-weight="600" fill="#e2e8f0">Strict Operational Checks:</text>
+      <text x="14" y="118" font-size="9.5" fill="#cbd5e1">&bull; Time Window: Arrival &lt; tw_start waits at customer</text>
+      <text x="14" y="132" font-size="9.5" fill="#cbd5e1">&bull; Lateness: Arrival &gt; tw_end flagged is_late=True</text>
+      <text x="14" y="146" font-size="9.5" fill="#cbd5e1">&bull; Service Time: Fixed 5 min drop-off per stop</text>
+      <text x="14" y="160" font-size="9.5" fill="#cbd5e1">&bull; Capacity Limit: Enforces total_weight &le; vehicle_cap</text>
+      <text x="14" y="174" font-size="9.5" fill="#cbd5e1">&bull; Coverage: Exactly one visit per order (0 dupes)</text>
+      <text x="14" y="188" font-size="9.5" fill="#cbd5e1">&bull; Depot Return: Loops vehicle back to warehouse</text>
+
+      <rect x="10" y="196" width="278" height="20" rx="3" fill="#064e3b" />
+      <text x="14" y="210" font-size="9" font-weight="700" fill="#6ee7b7">Determines Feasibility &amp; Stop ETAs</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 6: ROUTING & EXTERNAL SERVICES (X: 1410, Y: 95, W: 220, H: 430)       -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1410, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="220" height="430" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#475569" stroke-dasharray="4 2" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="12" y="16" width="196" height="30" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1.2" />
+    <text x="20" y="36" class="layer-title" fill="#cbd5e1">6. Routing &amp; External</text>
+
+    <!-- OSRM Routing Service -->
+    <g transform="translate(12, 58)">
+      <rect x="0" y="0" width="196" height="150" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1.2" />
+      <rect x="8" y="8" width="180" height="20" rx="3" fill="#0369a1" />
+      <text x="12" y="22" font-size="10" font-weight="700" fill="#ffffff">External Routing Service</text>
+      
+      <text x="12" y="44" class="comp-title" fill="#38bdf8">OSRM Routing Engine</text>
+      <text x="12" y="60" font-size="9.5" fill="#94a3b8">router.project-osrm.org</text>
+      <text x="12" y="78" class="comp-sub">&bull; /route/v1/driving</text>
+      <text x="12" y="94" class="comp-sub">&bull; Road network geometry</text>
+      <text x="12" y="110" class="comp-sub">&bull; Turn-by-turn GeoJSON</text>
+      <text x="12" y="126" class="comp-sub">&bull; Driving time in minutes</text>
+      <text x="12" y="142" font-size="8.5" fill="#38bdf8">Called for Final Route Polylines</text>
+    </g>
+
+    <!-- Haversine Fallback Engine -->
+    <g transform="translate(12, 220)">
+      <rect x="0" y="0" width="196" height="96" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+      <text x="12" y="20" class="comp-title">Internal Haversine Engine</text>
+      <text x="12" y="36" class="comp-sub">Offline Spatial Fallback</text>
+      <text x="12" y="52" class="comp-sub">Great-circle distance</text>
+      <text x="12" y="68" class="comp-sub">Curvature Multiplier: 1.3x</text>
+      <text x="12" y="86" font-size="8.5" fill="#34d399">Zero External Downtime Risk</text>
+    </g>
+
+    <!-- OpenStreetMap Nominatim -->
+    <g transform="translate(12, 326)">
+      <rect x="0" y="0" width="196" height="92" rx="6" fill="#111827" stroke="#94a3b8" stroke-width="1" />
+      <rect x="8" y="8" width="180" height="18" rx="3" fill="#374151" />
+      <text x="12" y="21" font-size="9.5" font-weight="700" fill="#ffffff">External Geocoding Service</text>
+      <text x="12" y="42" class="comp-title">OSM Nominatim</text>
+      <text x="12" y="58" class="comp-sub">nominatim.openstreetmap.org</text>
+      <text x="12" y="74" class="comp-sub">Forward Geocode Queries</text>
+      <text x="12" y="86" font-size="8.5" fill="#f87171">Rate-limited &bull; Timeout: 4.0s</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 7: SIMULATION & TELEMETRY ENGINE (X: 1410, Y: 540, W: 220, H: 445)   -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1410, 540)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="220" height="445" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="12" y="16" width="196" height="30" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.2" />
+    <text x="20" y="36" class="layer-title" fill="#fbbf24">7. Live Simulation</text>
+
+    <!-- Simulation Service (simulation.py) -->
+    <g transform="translate(12, 56)">
+      <rect x="0" y="0" width="196" height="154" rx="6" fill="#1c1917" stroke="#d97706" stroke-width="1.2" />
+      <text x="12" y="20" class="comp-title" fill="#fde68a">Simulation Engine</text>
+      <text x="12" y="34" font-size="10" font-weight="600" fill="#fbbf24">(simulation.py)</text>
+      <text x="12" y="52" class="comp-sub">Background Asyncio Loop</text>
+      <text x="12" y="68" class="comp-sub">Speed Scaler: 0.2x &ndash; 10.0x</text>
+      <text x="12" y="84" class="comp-sub">Traverses Approved Routes</text>
+      <text x="12" y="100" class="comp-sub">Segment Leg Interpolation</text>
+      <text x="12" y="116" class="comp-sub">6 Steps per Leg Journey</text>
+      <text x="12" y="132" class="comp-sub">Emulates Live Vehicle GPS</text>
+      <text x="12" y="146" font-size="8.5" fill="#fde68a">Status: "IN_PROGRESS"</text>
+    </g>
+
+    <!-- GPS Telemetry Generator & Order Updater -->
+    <g transform="translate(12, 222)">
+      <rect x="0" y="0" width="196" height="136" rx="6" fill="url(#cardGrad)" stroke="#334155" stroke-width="1" />
+      <text x="12" y="20" class="comp-title">GPS Telemetry Updates</text>
+      <text x="12" y="36" class="comp-sub">Computes Instant Lat / Lng</text>
+      <text x="12" y="52" class="comp-sub">Calculates Speed (km/h)</text>
+      <text x="12" y="68" class="comp-sub">Detects Stop Arrival</text>
+      <text x="12" y="84" class="comp-sub">Updates RouteStop Status:</text>
+      <text x="20" y="98" font-size="9" fill="#34d399">&bull; PENDING &rarr; COMPLETED</text>
+      <text x="12" y="114" class="comp-sub">Updates Order Status:</text>
+      <text x="20" y="128" font-size="9" fill="#38bdf8">&bull; DELIVERED</text>
+    </g>
+
+    <!-- Telemetry Broadcast Pipe -->
+    <g transform="translate(12, 370)">
+      <rect x="0" y="0" width="196" height="62" rx="6" fill="#172554" stroke="#3b82f6" stroke-width="1" />
+      <text x="12" y="18" class="comp-title" fill="#93c5fd">Broadcast Pipe</text>
+      <text x="12" y="34" class="comp-sub">Pushes payload to ws_manager</text>
+      <text x="12" y="50" font-size="9" fill="#38bdf8">Real-Time Leaflet Marker Sync</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- LAYER 8: DATABASE & PERSISTENCE LAYER (X: 1650, Y: 95, W: 230, H: 890)      -->
+  <!-- ========================================================================= -->
+  <g transform="translate(1650, 95)">
+    <!-- Group Boundary -->
+    <rect x="0" y="0" width="230" height="890" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Header Pill -->
+    <rect x="12" y="16" width="206" height="30" rx="6" fill="#312e81" stroke="#818cf8" stroke-width="1.2" />
+    <text x="18" y="36" class="layer-title" fill="#c7d2fe">8. Persistence (DB)</text>
+
+    <!-- ORM Header -->
+    <g transform="translate(12, 56)">
+      <rect x="0" y="0" width="206" height="50" rx="6" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <text x="12" y="20" class="comp-title" fill="#e0e7ff">SQLAlchemy 2.0 ORM</text>
+      <text x="12" y="36" font-size="10" fill="#a5b4fc">SQLite (delivery.db) / Postgres</text>
+    </g>
+
+    <!-- DATABASE CYLINDERS -->
+    
+    <!-- Cylinder 1: Orders -->
+    <g transform="translate(16, 116)">
+      <!-- Cylinder Body -->
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <!-- Bottom Ellipse Rim -->
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <!-- Top Ellipse Cap -->
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">orders table</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">id, code, address, lat, lng, weight,</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">priority, time_window, geocoding_status</text>
+    </g>
+
+    <!-- Cylinder 2: Vehicles -->
+    <g transform="translate(16, 196)">
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">vehicles table</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">vehicle_number, max_capacity,</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">current_load, current_lat, lng, status</text>
+    </g>
+
+    <!-- Cylinder 3: Routes & RouteStops -->
+    <g transform="translate(16, 276)">
+      <path d="M 0 14 L 0 68 A 99 14 0 0 0 198 68 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="68" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">routes &amp; route_stops</text>
+      <text x="14" y="36" font-size="9" fill="#e0e7ff">routes: total_dist, duration, geom</text>
+      <text x="14" y="48" font-size="9" fill="#e0e7ff">stops: stop_sequence, eta, is_late</text>
+      <text x="14" y="60" font-size="8.5" fill="#a5b4fc">stop_type: DEPOT_START / DELIVERY</text>
+    </g>
+
+    <!-- Cylinder 4: Optimization Runs -->
+    <g transform="translate(16, 370)">
+      <path d="M 0 14 L 0 66 A 99 14 0 0 0 198 66 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="66" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">optimization_runs</text>
+      <text x="14" y="36" font-size="9" fill="#e0e7ff">complexity_score, ml_recommended</text>
+      <text x="14" y="48" font-size="9" fill="#e0e7ff">final_strategy, total_dist, saved_km,</text>
+      <text x="14" y="60" font-size="8.5" fill="#a5b4fc">pct_improvement, runtime_seconds</text>
+    </g>
+
+    <!-- Cylinder 5: Routing Cache -->
+    <g transform="translate(16, 462)">
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">routing_cache</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">origin_lat/lng &rarr; dest_lat/lng,</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">distance_km, duration, polyline_json</text>
+    </g>
+
+    <!-- Cylinder 6: Warehouses & Customers -->
+    <g transform="translate(16, 542)">
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">warehouses &amp; customers</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">warehouses: Central Depot Pune coords</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">customers: name, address, phone, email</text>
+    </g>
+
+    <!-- Cylinder 7: Model Versions & Audit -->
+    <g transform="translate(16, 622)">
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">model_versions table</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">RF version, accuracy, precision, F1,</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">feature_importance_json, trained_at</text>
+    </g>
+
+    <!-- Cylinder 8: Vehicle Locations Audit -->
+    <g transform="translate(16, 702)">
+      <path d="M 0 14 L 0 54 A 99 14 0 0 0 198 54 L 198 14 Z" fill="url(#dbGrad)" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="54" rx="99" ry="14" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1" />
+      <ellipse cx="99" cy="14" rx="99" ry="14" fill="url(#dbCapGrad)" stroke="#818cf8" stroke-width="1.2" />
+      <text x="99" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">vehicle_locations audit</text>
+      <text x="14" y="38" font-size="9" fill="#e0e7ff">historical GPS trail: vehicle_id, lat,</text>
+      <text x="14" y="49" font-size="8.5" fill="#a5b4fc">lng, speed, recorded_at timestamp</text>
+    </g>
+
+    <!-- Migration Safety Badge -->
+    <g transform="translate(12, 782)">
+      <rect x="0" y="0" width="206" height="88" rx="6" fill="#111827" stroke="#334155" stroke-width="1" />
+      <text x="10" y="20" font-size="10" font-weight="700" fill="#38bdf8">run_migrations() Safety Pattern</text>
+      <text x="10" y="36" font-size="8.5" fill="#94a3b8">&bull; Adds area, pincode, geocoding_status</text>
+      <text x="10" y="48" font-size="8.5" fill="#94a3b8">&bull; Safe SQLite table recreation pattern</text>
+      <text x="10" y="60" font-size="8.5" fill="#94a3b8">&bull; Preserves customer order records</text>
+      <text x="10" y="74" font-size="8.5" fill="#10b981">&bull; Zero data loss on schema updates</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- DIRECTIONAL ARROWS & DATA FLOW CONNECTORS                                  -->
+  <!-- ========================================================================= -->
+
+  <!-- Flow 1: Dispatcher to Frontend -->
+  <path d="M 195 221 L 195 237" class="conn-path" stroke="#38bdf8" marker-end="url(#arrowBlue)" />
+
+  <!-- Flow 2: Frontend to API Gateway -->
+  <path d="M 350 410 L 380 410" class="conn-path" stroke="#38bdf8" marker-end="url(#arrowBlue)" />
+  <rect x="335" y="394" width="80" height="15" rx="3" fill="#0b0f19" stroke="#334155" stroke-width="0.7" />
+  <text x="375" y="405" text-anchor="middle" class="conn-label">HTTP REST</text>
+
+  <!-- Flow 3: WebSocket Stream (Frontend <-> WebSocket Manager) -->
+  <path d="M 350 820 L 396 820" class="conn-path" stroke="#38bdf8" stroke-dasharray="3 3" marker-end="url(#arrowBlue)" />
+  <rect x="325" y="804" width="94" height="15" rx="3" fill="#0b0f19" stroke="#334155" stroke-width="0.7" />
+  <text x="372" y="815" text-anchor="middle" class="conn-label">/ws/live (JSON)</text>
+
+  <!-- Flow 4: Order Controller to CSV Parser / Data Prep -->
+  <path d="M 648 300 L 710 300" class="conn-path" stroke="#38bdf8" marker-end="url(#arrowBlue)" />
+  <rect x="645" y="286" width="70" height="15" rx="3" fill="#0b0f19" stroke="#334155" stroke-width="0.7" />
+  <text x="680" y="297" text-anchor="middle" class="conn-label">CSV Stream</text>
+
+  <!-- Flow 5: Geocoding Pipeline to OSM Nominatim -->
+  <path d="M 1020 280 L 1422 440" class="conn-path" stroke="#94a3b8" stroke-dasharray="3 3" marker-end="url(#arrowBlue)" />
+  <rect x="1190" y="340" width="105" height="15" rx="3" fill="#0b0f19" stroke="#334155" stroke-width="0.7" />
+  <text x="1242" y="351" text-anchor="middle" font-size="9" fill="#94a3b8">Nominatim Query</text>
+
+  <!-- Flow 6: Optimization Controller to Complexity Extractor -->
+  <path d="M 648 440 L 670 440 L 670 635 L 726 635" class="conn-path" stroke="#c084fc" marker-end="url(#arrowPurple)" />
+  <rect x="635" y="525" width="80" height="15" rx="3" fill="#0b0f19" stroke="#7e22ce" stroke-width="0.7" />
+  <text x="675" y="536" text-anchor="middle" font-size="9" font-weight="600" fill="#c084fc">Extract Feats</text>
+
+  <!-- Flow 7: Complexity Extractor to Random Forest -->
+  <path d="M 865 732 L 865 742" class="conn-path" stroke="#c084fc" marker-end="url(#arrowPurple)" />
+  <rect x="825" y="728" width="80" height="13" rx="2" fill="#140d2b" />
+  <text x="865" y="738" text-anchor="middle" font-size="8.5" fill="#e9d5ff">8-D Vector</text>
+
+  <!-- Flow 8: Random Forest to Safety Arbiter -->
+  <path d="M 865 866 L 865 876" class="conn-path" stroke="#c084fc" marker-end="url(#arrowPurple)" />
+  <rect x="815" y="862" width="100" height="13" rx="2" fill="#1e1b4b" />
+  <text x="865" y="872" text-anchor="middle" font-size="8.5" fill="#e9d5ff">Predicted Strategy</text>
+
+  <!-- Flow 9: Safety Arbiter to Optimization Solvers -->
+  <path d="M 1020 905 L 1040 905 L 1040 172 L 1066 172" class="conn-path" stroke="#34d399" marker-end="url(#arrowGreen)" />
+  <rect x="995" y="540" width="86" height="15" rx="3" fill="#0b0f19" stroke="#059669" stroke-width="0.7" />
+  <text x="1038" y="551" text-anchor="middle" font-size="9" font-weight="700" fill="#34d399">Selected Strat</text>
+
+  <!-- Flow 10: Matrix Builder to Solvers -->
+  <path d="M 1020 455 L 1066 455" class="conn-path" stroke="#38bdf8" marker-end="url(#arrowBlue)" />
+  <rect x="1010" y="443" width="70" height="14" rx="2" fill="#0b0f19" />
+  <text x="1045" y="453" text-anchor="middle" font-size="8.5" fill="#38bdf8">NxN Matrices</text>
+
+  <!-- Flow 11: Solvers to Route Evaluator (Bidirectional Loop) -->
+  <path d="M 1215 638 L 1215 745" class="conn-path" stroke="#10b981" stroke-dasharray="3 3" marker-end="url(#arrowGreen)" />
+  <rect x="1165" y="680" width="100" height="15" rx="3" fill="#0b0f19" stroke="#059669" stroke-width="0.7" />
+  <text x="1215" y="691" text-anchor="middle" font-size="9" fill="#6ee7b7">Evaluate Cost</text>
+
+  <!-- Flow 12: Solvers to OSRM Engine (Polyline Request) -->
+  <path d="M 1380 250 L 1422 250" class="conn-path" stroke="#38bdf8" marker-end="url(#arrowBlue)" />
+  <rect x="1375" y="238" width="70" height="14" rx="2" fill="#0b0f19" />
+  <text x="1410" y="248" text-anchor="middle" font-size="8.5" fill="#38bdf8">Get Road Geom</text>
+
+  <!-- Flow 13: Solvers / Optimization Controller to Database Persistence -->
+  <path d="M 1380 770 L 1650 770 L 1650 415 L 1666 415" class="conn-path" stroke="#fbbf24" marker-end="url(#arrowAmber)" />
+  <rect x="1500" y="758" width="120" height="15" rx="3" fill="#0b0f19" stroke="#f59e0b" stroke-width="0.7" />
+  <text x="1560" y="769" text-anchor="middle" font-size="9" font-weight="600" fill="#fbbf24">Persist Routes &amp; Runs</text>
+
+  <!-- Flow 14: Simulation Service to Vehicle Location Broadcast -->
+  <path d="M 1410 790 L 1260 790 L 1260 925 L 648 925" class="conn-path" stroke="#fb923c" marker-end="url(#arrowOrange)" />
+  <rect x="1000" y="915" width="120" height="15" rx="3" fill="#0b0f19" stroke="#ea580c" stroke-width="0.7" />
+  <text x="1060" y="926" text-anchor="middle" font-size="9" font-weight="600" fill="#fb923c">Live Telemetry GPS Push</text>
+
+  <!-- Flow 15: Database Reads to Controllers -->
+  <path d="M 1666 230 L 1020 230 L 648 230" class="conn-path" stroke="#818cf8" stroke-dasharray="4 2" />
+  <rect x="910" y="222" width="90" height="15" rx="3" fill="#0b0f19" stroke="#4f46e5" stroke-width="0.7" />
+  <text x="955" y="233" text-anchor="middle" font-size="9" fill="#c7d2fe">SQLAlchemy Queries</text>
+
+  <!-- ========================================================================= -->
+  <!-- ARCHITECTURE LEGEND & METADATA BAR                                         -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 1005)">
+    <rect x="0" y="0" width="1840" height="50" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2" />
+    
+    <text x="20" y="30" font-size="12" font-weight="700" fill="#f8fafc">SYSTEM LEGEND:</text>
+
+    <!-- Legend Item 1: Frontend -->
+    <rect x="140" y="17" width="18" height="18" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="166" y="30" class="legend-text">Presentation (React / Vite)</text>
+
+    <!-- Legend Item 2: Backend -->
+    <rect x="360" y="17" width="18" height="18" rx="4" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5" />
+    <text x="386" y="30" class="legend-text">API &amp; Controllers (FastAPI)</text>
+
+    <!-- Legend Item 3: ML -->
+    <rect x="580" y="17" width="18" height="18" rx="4" fill="#2e1065" stroke="#a855f7" stroke-width="1.5" />
+    <text x="606" y="30" class="legend-text">ML Decision Layer (Random Forest)</text>
+
+    <!-- Legend Item 4: DAA Optimization -->
+    <rect x="860" y="17" width="18" height="18" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+    <text x="886" y="30" class="legend-text">Optimization Suite (DAA Heuristics)</text>
+
+    <!-- Legend Item 5: Database Cylinder -->
+    <ellipse cx="1145" cy="26" rx="10" ry="6" fill="#4338ca" stroke="#818cf8" stroke-width="1" />
+    <text x="1165" y="30" class="legend-text">Persistent Storage (SQLAlchemy ORM)</text>
+
+    <!-- Legend Item 6: External Service -->
+    <rect x="1430" y="17" width="18" height="18" rx="4" fill="#111827" stroke="#94a3b8" stroke-dasharray="3 2" stroke-width="1.5" />
+    <text x="1456" y="30" class="legend-text">External HTTP Service (OSRM / Nominatim)</text>
+
+    <!-- Legend Item 7: Real-Time Stream -->
+    <line x1="1710" y1="26" x2="1735" y2="26" stroke="#38bdf8" stroke-dasharray="3 3" stroke-width="2" />
+    <text x="1745" y="30" class="legend-text">WebSocket /ws/live</text>
+  </g>
+</svg>
